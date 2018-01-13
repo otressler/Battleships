@@ -1,5 +1,18 @@
 package com.ships;
 
 public enum ShipType {
-    BATTLESHIP, CRUISER, FRIGATE, MINESWEEPER
+    BATTLESHIP("Battleship"),
+    CRUISER("Cruiser"),
+    FRIGATE("Frigate"),
+    MINESWEEPER("Minesweeper");
+
+    private String className;
+
+    ShipType(String className) {
+        this.className = className;
+    }
+
+    public String getClassName() {
+        return className;
+    }
 }

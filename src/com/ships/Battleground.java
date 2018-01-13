@@ -6,9 +6,11 @@ public class Battleground {
     //      y x
     FieldState[][] battleground;
     ArrayList<Ship> ships;
+    Game game;
 
-    public Battleground() {
+    public Battleground(Game game) {
         this.battleground = new FieldState[10][10];
+        this.game = game;
         for (int y = 0; y < battleground.length; y++) {
             for (int x = 0; x < battleground[y].length; x++) {
                 battleground[y][x] = FieldState.NA;
@@ -29,39 +31,32 @@ public class Battleground {
                 }
                 System.out.println();
             }
-        } else if (mode.equals(BattlegroundMode.FRIENDLY)) {
-            System.out.println("Enemies guesses on your board");
-            System.out.println("    A  B  C  D  E  F  G  H  I  J");
-            for (int y = 0; y < battleground.length; y++) {
-                System.out.print(Util.padRight(Integer.toString(y), 3));
-                for (int x = 0; x < battleground[y].length; x++) {
-                    System.out.print("[" + battleground[y][x].getSymbol() + "]");
-                }
-                System.out.println();
-            }
         } else if (mode.equals(BattlegroundMode.ENEMY)) {
-            System.out.printf("Your guesses on the enemies board");
+            System.out.print("Your guesses on the enemies board      ");
+            System.out.print("Enemies guesses on your board          ");
             System.out.println();
-            System.out.println("    A  B  C  D  E  F  G  H  I  J");
+            System.out.print("    A  B  C  D  E  F  G  H  I  J       ");
+            System.out.print("    A  B  C  D  E  F  G  H  I  J       ");
+            System.out.println();
             for (int y = 0; y < battleground.length; y++) {
                 System.out.print(Util.padRight(Integer.toString(y), 3));
                 for (int x = 0; x < battleground[y].length; x++) {
-                    if (!battleground[y][x].equals(FieldState.SHIP))
+                    if (!battleground[y][x].equals(FieldState.SHIP) && !battleground[y][x].equals(FieldState.BLOCKED))
                         System.out.print("[" + battleground[y][x].getSymbol() + "]");
                     else
                         System.out.print("[ ]");
                 }
-                System.out.println();
-            }
-        }
-    }
 
-    public void clearBlocked() {
-        for (int y = 0; y < battleground.length; y++) {
-            for (int x = 0; x < battleground[y].length; x++) {
-                if (battleground[y][x].equals(FieldState.BLOCKED)) {
-                    battleground[y][x] = FieldState.NA;
+
+                System.out.print("      ");
+                System.out.print(Util.padRight(Integer.toString(y), 3));
+                for (int x = 0; x < battleground[y].length; x++) {
+                    if (!game.getBattlegrounds()[game.getCurrentPlayer()].battleground[y][x].equals(FieldState.BLOCKED))
+                        System.out.print("[" + game.getBattlegrounds()[game.getCurrentPlayer()].battleground[y][x].getSymbol() + "]");
+                    else
+                        System.out.print("[ ]");
                 }
+                System.out.println();
             }
         }
     }

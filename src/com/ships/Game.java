@@ -1,24 +1,29 @@
 package com.ships;
 
+import ai.AI;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class Game {
-
+    final ShipType[] shipList = {ShipType.BATTLESHIP, ShipType.CRUISER, ShipType.FRIGATE, ShipType.FRIGATE, ShipType.MINESWEEPER};
+    BufferedReader br;
     int player;
     Battleground[] battlegrounds;
     int counter = 0;
+    AI ai;
 
     public Game() {
         player = 0;
         battlegrounds = new Battleground[2];
-        battlegrounds[0] = new Battleground();
-        battlegrounds[1] = new Battleground();
-        placementPhase(nextPlayer());
-        placementPhase(nextPlayer());
-        battlegrounds[0].clearBlocked();
-        battlegrounds[1].clearBlocked();
+        battlegrounds[0] = new Battleground(this);
+        battlegrounds[1] = new Battleground(this);
+        br = new BufferedReader(new InputStreamReader(System.in));
+        ai = new AI(this);
+
+        placementPhase(0);
+        placementPhase(1);
         System.out.println("Now entering game phase: ");
         while (!winCondition()) {
             System.out.println("Round " + counter);
@@ -67,96 +72,56 @@ public class Game {
             io.printStackTrace();
         }
         battlegrounds[(player + 1) % 2].printBattleground(Battleground.BattlegroundMode.ENEMY);
-        battlegrounds[player].printBattleground(Battleground.BattlegroundMode.FRIENDLY);
-
+        System.out.println();
+        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+        System.out.println();
     }
 
     public void round() {
-        guess(nextPlayer());
-        guess(nextPlayer());
+        guess(0);
+        player++;
+        guess(1);
+        player--;
         counter++;
     }
 
     public void placementPhase(int player) {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        String coordinates = "";
-        try {
-            System.out.println(player + "You may now place your battleship. Please enter the coordinates:");
-            do {
-                coordinates = br.readLine();
-            } while (
-                    !battlegrounds[player].placeShip(
-                            new Ship(
-                                    ShipType.BATTLESHIP,
-                                    Util.parseXPosition(coordinates),
-                                    Util.parseYPosition(coordinates),
-                                    Util.parseOrientation(coordinates)
-                            )
-                    ));
-            battlegrounds[player].printBattleground(Battleground.BattlegroundMode.PLACEMENT);
-
-            System.out.print(player + "You may now place your cruiser. Please enter the coordinates:");
-            do {
-                coordinates = br.readLine();
-            } while (
-                    !battlegrounds[player].placeShip(
-                            new Ship(
-                                    ShipType.CRUISER,
-                                    Util.parseXPosition(coordinates),
-                                    Util.parseYPosition(coordinates),
-                                    Util.parseOrientation(coordinates)
-                            )
-                    ));
-            battlegrounds[player].printBattleground(Battleground.BattlegroundMode.PLACEMENT);
-
-            System.out.print(player + "You may now place your frigate. Please enter the coordinates:");
-            do {
-                coordinates = br.readLine();
-            } while (
-                    !battlegrounds[player].placeShip(
-                            new Ship(
-                                    ShipType.FRIGATE,
-                                    Util.parseXPosition(coordinates),
-                                    Util.parseYPosition(coordinates),
-                                    Util.parseOrientation(coordinates)
-                            )
-                    ));
-            battlegrounds[player].printBattleground(Battleground.BattlegroundMode.PLACEMENT);
-
-            System.out.print(player + "You may now place your second frigate. Please enter the coordinates;");
-            do {
-                coordinates = br.readLine();
-            } while (
-                    !battlegrounds[player].placeShip(
-                            new Ship(
-                                    ShipType.FRIGATE,
-                                    Util.parseXPosition(coordinates),
-                                    Util.parseYPosition(coordinates),
-                                    Util.parseOrientation(coordinates)
-                            )
-                    ));
-            battlegrounds[player].printBattleground(Battleground.BattlegroundMode.PLACEMENT);
-
-            System.out.print(player + "You may now place your minesweeper. Please enter the coordinates:");
-            do {
-                coordinates = br.readLine();
-            } while (
-                    !battlegrounds[player].placeShip(
-                            new Ship(
-                                    ShipType.MINESWEEPER,
-                                    Util.parseXPosition(coordinates),
-                                    Util.parseYPosition(coordinates),
-                                    Util.parseOrientation(coordinates)
-                            )
-                    ));
-            battlegrounds[player].printBattleground(Battleground.BattlegroundMode.PLACEMENT);
-        } catch (IOException io) {
-            io.printStackTrace();
+        if (player == 0) {
+            for (ShipType type : shipList)
+                requestPlacement(type);
+        } else {
+            battlegrounds[player] = ai.placementAI.placeShips(shipList);
         }
     }
 
-    private int nextPlayer() {
-        player = (player + 1) % 2;
+    private void requestPlacement(ShipType type) {
+        System.out.println("@Player " + player + ": You may now place your " + type.getClassName() + ". Please enter the coordinates:");
+        br = new BufferedReader(new InputStreamReader(System.in));
+        String coordinates = "";
+        do {
+            try {
+                coordinates = br.readLine();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } while (
+                !battlegrounds[player].placeShip(
+                        new Ship(
+                                type,
+                                Util.parseXPosition(coordinates),
+                                Util.parseYPosition(coordinates),
+                                Util.parseOrientation(coordinates)
+                        )
+                ));
+        battlegrounds[player].printBattleground(Battleground.BattlegroundMode.PLACEMENT);
+    }
+
+    public int getCurrentPlayer() {
         return player;
+    }
+
+    public Battleground[] getBattlegrounds() {
+        return battlegrounds;
     }
 }
