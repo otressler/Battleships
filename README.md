@@ -1,9 +1,15 @@
 Battleships
 
 1 Battleship     5 Blocks
+
 1 Cruiser        4 Blocks
+
 2 Frigates       3 Blocks
+
 1 Minesweeper    2 Blocks
+
+
+
 
 Placement phase:
 
