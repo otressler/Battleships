@@ -20,19 +20,33 @@ Guess phase:
 Enter coordinates [A-J][0-9] when prompted. After all of the opponents ships are sunk, you win the game. However, if you are player 0 and the opponent manages to destroy your last ship after you destroyed all of his, the game is a tie.
 
 
-Memory (Enemies preferred shot fields and placements)
+Memory (Enemies preferred guess fields and placements)
 
 
 // Check for invalid placement options (min shiplength)
+
 // Push coordinates next to hit on stack
+
         // Enter AttackMode
+        
         // After hitting ship for the second time and !sunk
+        
         // set orientation
+       
         // calculate max enemy shiplength
+        
         // try next field depending on orientation
+        
         // on first miss try other direction if ship has not been sunk
+        
         // fire as long as hit fields < max enemy shiplength || ship sunk
+        
         // Mark everything around sunk ship as IGNORE
+        
         // Remove ignored fields from checkerboard stack
+        
+Placement:
+
+// Sparse vs. Dense
 
 https://de.wikihow.com/Bei-Schiffe-versenken-gewinnen
