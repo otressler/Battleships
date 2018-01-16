@@ -9,7 +9,7 @@ public class AI {
 
     public AI(Game game) {
         this.game = game;
-        this.placementAI = new PlacementAI(game);
+        this.placementAI = new PlacementAI(game, PlacementAI.PositionStrategy.SPARSE);
         this.guessAI = new GuessAI(game);
     }
 }
