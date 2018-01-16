@@ -63,7 +63,7 @@ public class Battleground {
 
     public boolean placeShip(Ship ship) {
         if (ship.verticalRotation) {
-            if (ship.xPos >= 0 && ship.xPos < 10 && ship.yPos >= 0 && ship.yPos + ship.length < 10 && !checkForBlockedFields(ship)) {
+            if (ship.xPos >= 0 && ship.xPos < 10 && ship.yPos >= 0 && ship.yPos + ship.length - 1 < 10 && !checkForBlockedFields(ship)) {
                 for (int i = 0; i < ship.length; i++) {
                     battleground[ship.yPos + i][ship.xPos] = FieldState.SHIP;
                     blockFieldsForPlacement(ship);
@@ -72,7 +72,7 @@ public class Battleground {
                 return true;
             }
         } else {
-            if (ship.xPos >= 0 && ship.xPos + ship.length < 10 && ship.yPos >= 0 && ship.yPos < 10 && !checkForBlockedFields(ship)) {
+            if (ship.xPos >= 0 && ship.xPos + ship.length - 1 < 10 && ship.yPos >= 0 && ship.yPos < 10 && !checkForBlockedFields(ship)) {
                 for (int i = 0; i < ship.length; i++) {
                     battleground[ship.yPos][ship.xPos + i] = FieldState.SHIP;
                     blockFieldsForPlacement(ship);
