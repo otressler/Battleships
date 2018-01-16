@@ -32,8 +32,8 @@ public class Game {
     }
 
     private boolean winCondition() {
-        for (Battleground b : battlegrounds) {
-            for (Ship s : b.ships) {
+        for (int i = 0; i < 2; i++) {
+            for (Ship s : battlegrounds[i].ships) {
                 if (!s.sunk)
                     return false;
             }
@@ -43,39 +43,34 @@ public class Game {
     }
 
     public void guess(int player) {
-        System.out.println("Turn player " + player);
-        battlegrounds[(player + 1) % 2].printBattleground(Battleground.BattlegroundMode.ENEMY);
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        try {
-            String coordinates = br.readLine();
-            int x = Util.parseXPosition(coordinates);
-            int y = Util.parseYPosition(coordinates);
-
-            boolean hit = false;
-            for (Ship s : battlegrounds[(player + 1) % 2].ships) {
-                if (s.hitScan(x, y)) {
-                    battlegrounds[(player + 1) % 2].battleground[y][x] = Battleground.FieldState.HIT;
-                    if (s.sunk) {
-                        if (s.verticalRotation) {
-                            for (int i = 0; i < s.length; i++) {
-                                battlegrounds[(player + 1) % 2].battleground[s.yPos + i][s.xPos] = Battleground.FieldState.SUNK;
-                            }
-                        }
-                    }
-                    hit = true;
-                }
+        if (player == 0) {
+            System.out.println("Turn player " + player);
+            battlegrounds[(player + 1) % 2].printBattleground(Battleground.BattlegroundMode.ENEMY);
+            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+            try {
+                String coordinates = br.readLine();
+                int x = Util.parseXPosition(coordinates);
+                int y = Util.parseYPosition(coordinates);
+                if (battlegrounds[(player + 1) % 2].hitEvaluation(new Coordinate(x, y)))
+                    guess(player);
+            } catch (IOException io) {
+                io.printStackTrace();
             }
-            if (!hit) {
-                battlegrounds[(player + 1) % 2].battleground[y][x] = Battleground.FieldState.MISS;
+            battlegrounds[(player + 1) % 2].printBattleground(Battleground.BattlegroundMode.ENEMY);
+            System.out.println();
+            System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+            System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+            System.out.println();
+        } else {
+            Coordinate aiGuess = ai.guessAI.getNextGuess();
+            System.out.println("AI guessed " + Util.parseCharacterFromInt(aiGuess.x) + " " + aiGuess.y);
+            if (battlegrounds[(player + 1) % 2].hitEvaluation(aiGuess)) {
+                ai.guessAI.onHit();
+                guess(1);
+            } else {
+                ai.guessAI.onMiss();
             }
-        } catch (IOException io) {
-            io.printStackTrace();
         }
-        battlegrounds[(player + 1) % 2].printBattleground(Battleground.BattlegroundMode.ENEMY);
-        System.out.println();
-        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-        System.out.println();
     }
 
     public void round() {

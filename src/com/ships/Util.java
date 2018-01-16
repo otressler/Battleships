@@ -20,4 +20,8 @@ public class Util {
     public static boolean parseOrientation(String coordinates) {
         return Character.toLowerCase(coordinates.charAt(2)) == 'v';
     }
+
+    public static char parseCharacterFromInt(int value) {
+        return (char) (value + 65);
+    }
 }

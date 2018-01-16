@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 public class Battleground {
     //      y x
-    FieldState[][] battleground;
-    ArrayList<Ship> ships;
+    public FieldState[][] battleground;
+    public ArrayList<Ship> ships;
     Game game;
 
     public Battleground(Game game) {
@@ -81,6 +81,24 @@ public class Battleground {
                 return true;
             }
         }
+        return false;
+    }
+
+    public boolean hitEvaluation(Coordinate c) {
+        for (Ship s : ships) {
+            if (s.hitScan(c.x, c.y)) {
+                battleground[c.y][c.x] = Battleground.FieldState.HIT;
+                if (s.sunk) {
+                    if (s.verticalRotation) {
+                        for (int i = 0; i < s.length; i++) {
+                            battleground[s.yPos + i][s.xPos] = Battleground.FieldState.SUNK;
+                        }
+                    }
+                }
+                return true;
+            }
+        }
+        battleground[c.y][c.x] = FieldState.MISS;
         return false;
     }
 
@@ -167,7 +185,9 @@ public class Battleground {
         ENEMY, PLACEMENT, FRIENDLY
     }
 
-    enum FieldState {
+    public enum FieldState {
+        IGNORE("I"),
+        POTENTIAL("P"),
         HIT("X"),
         MISS("-"),
         SUNK("#"),

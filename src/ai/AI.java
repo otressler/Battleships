@@ -10,6 +10,6 @@ public class AI {
     public AI(Game game) {
         this.game = game;
         this.placementAI = new PlacementAI(game);
-        this.guessAI = new GuessAI();
+        this.guessAI = new GuessAI(game);
     }
 }
