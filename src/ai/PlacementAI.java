@@ -18,7 +18,7 @@ public class PlacementAI {
 
         int newXPos, newYPos;
         boolean newVerticalRotation;
-        int battlegroundSize = bg.battleground.length - 1;
+        int battlegroundSize = bg.battleground.length;
         int[][] distanceBattlefield = new int[battlegroundSize][battlegroundSize];
         Ship tempShip;
         Random random = new Random();
@@ -35,9 +35,9 @@ public class PlacementAI {
                         newVerticalRotation = random.nextBoolean();
                         if(newVerticalRotation) {
                             newXPos = random.nextInt(battlegroundSize);
-                            newYPos = random.nextInt(battlegroundSize - type.getLength());
+                            newYPos = random.nextInt(battlegroundSize - type.getLength() + 1);
                         } else{
-                            newXPos = random.nextInt(battlegroundSize - type.getLength());
+                            newXPos = random.nextInt(battlegroundSize - type.getLength() + 1);
                             newYPos = random.nextInt(battlegroundSize);
                         }
                         tempShip = new Ship(type, newXPos, newYPos, newVerticalRotation);
