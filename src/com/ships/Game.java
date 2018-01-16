@@ -65,10 +65,10 @@ public class Game {
             Coordinate aiGuess = ai.guessAI.getNextGuess();
             System.out.println("AI guessed " + Util.parseCharacterFromInt(aiGuess.x) + " " + aiGuess.y);
             if (battlegrounds[(player + 1) % 2].hitEvaluation(aiGuess)) {
-                ai.guessAI.onHit();
+                ai.guessAI.onHit(aiGuess.x, aiGuess.y);
                 guess(1);
             } else {
-                ai.guessAI.onMiss();
+                ai.guessAI.onMiss(aiGuess.x, aiGuess.y);
             }
         }
     }
