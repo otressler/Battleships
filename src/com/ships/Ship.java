@@ -1,5 +1,7 @@
 package com.ships;
 
+import java.util.ArrayList;
+
 public class Ship {
     ShipType type;
     int xPos;
@@ -53,4 +55,22 @@ public class Ship {
 
         return false;
     }
+
+    public ArrayList<Coordinate> getCoordinates() {
+
+        ArrayList<Coordinate> coordinates = new ArrayList<>();
+
+        if (verticalRotation) {
+            for (int i = 0; i <= type.getLength(); i++) {
+                coordinates.add(new Coordinate(xPos, yPos + i));
+            }
+        } else {
+            for (int i = 0; i <= type.getLength(); i++) {
+                coordinates.add(new Coordinate(xPos + i, yPos));
+            }
+        }
+
+        return coordinates;
+    }
+
 }

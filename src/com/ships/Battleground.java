@@ -41,7 +41,8 @@ public class Battleground {
             for (int y = 0; y < battleground.length; y++) {
                 System.out.print(Util.padRight(Integer.toString(y), 3));
                 for (int x = 0; x < battleground[y].length; x++) {
-                    if (!battleground[y][x].equals(FieldState.SHIP) && !battleground[y][x].equals(FieldState.BLOCKED))
+                    // TODO: uncomment this part
+                    if (/*!battleground[y][x].equals(FieldState.SHIP) &&*/ !battleground[y][x].equals(FieldState.BLOCKED))
                         System.out.print("[" + battleground[y][x].getSymbol() + "]");
                     else
                         System.out.print("[ ]");
@@ -108,7 +109,7 @@ public class Battleground {
      * @param ship The ship that is supposed to be placed
      * @return true if fields are blocked, false if they arent
      */
-    private boolean checkForBlockedFields(Ship ship) {
+    public boolean checkForBlockedFields(Ship ship) {
         if (ship.verticalRotation) {
             for (int i = 0; i < ship.length; i++) {
                 if (battleground[ship.yPos + i][ship.xPos].equals(FieldState.BLOCKED) || battleground[ship.yPos + i][ship.xPos].equals(FieldState.SHIP)) {
