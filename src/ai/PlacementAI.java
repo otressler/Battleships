@@ -2,7 +2,6 @@ package ai;
 
 import com.ships.*;
 
-import javax.swing.text.Position;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -36,9 +35,9 @@ public class PlacementAI {
                         newVerticalRotation = random.nextBoolean();
                         if(newVerticalRotation) {
                             newXPos = random.nextInt(battlegroundSize);
-                            newYPos = random.nextInt(battlegroundSize)-type.getLength();
+                            newYPos = random.nextInt(battlegroundSize - type.getLength());
                         } else{
-                            newXPos = random.nextInt(battlegroundSize)-type.getLength();
+                            newXPos = random.nextInt(battlegroundSize - type.getLength());
                             newYPos = random.nextInt(battlegroundSize);
                         }
                         tempShip = new Ship(type, newXPos, newYPos, newVerticalRotation);
