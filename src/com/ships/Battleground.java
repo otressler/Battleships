@@ -41,7 +41,7 @@ public class Battleground {
             for (int y = 0; y < battleground.length; y++) {
                 System.out.print(Util.padRight(Integer.toString(y), 3));
                 for (int x = 0; x < battleground[y].length; x++) {
-                    if (!battleground[y][x].equals(FieldState.SHIP) && !battleground[y][x].equals(FieldState.BLOCKED))
+                    if (/*!battleground[y][x].equals(FieldState.SHIP) &&*/ !battleground[y][x].equals(FieldState.BLOCKED))
                         System.out.print("[" + battleground[y][x].getSymbol() + "]");
                     else
                         System.out.print("[ ]");

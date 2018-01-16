@@ -1,6 +1,7 @@
 package com.ships;
 
 import ai.AI;
+import ai.PlacementAI;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -86,7 +87,7 @@ public class Game {
             for (ShipType type : shipList)
                 requestPlacement(type);
         } else {
-            battlegrounds[player] = ai.placementAI.placeShips(shipList, "dense");
+            battlegrounds[player] = ai.placementAI.placeShips(shipList, PlacementAI.PositionStrategy.RANDOM);
         }
     }
 
