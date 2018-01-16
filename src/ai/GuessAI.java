@@ -227,16 +227,16 @@ public class GuessAI {
 
         switch (currentDirection) {
             case UP:
-                nextGuesses.push(new Coordinate(x, y - 1));
+                nextGuesses.push(new Coordinate(initialHit.getX(), initialHit.getY() - 1));
                 break;
             case DOWN:
-                nextGuesses.push(new Coordinate(x, y + 1));
+                nextGuesses.push(new Coordinate(initialHit.getX(), initialHit.getY() + 1));
                 break;
             case LEFT:
-                nextGuesses.push(new Coordinate(x - 1, y));
+                nextGuesses.push(new Coordinate(initialHit.getX() - 1, initialHit.getY()));
                 break;
             case RIGHT:
-                nextGuesses.push(new Coordinate(x + 1, y));
+                nextGuesses.push(new Coordinate(initialHit.getX() + 1, initialHit.getY()));
                 break;
             default:
                 System.out.println("MÖÖÖP");
@@ -244,7 +244,7 @@ public class GuessAI {
     }
 
     public void onSunk(int x, int y) {
-        hits = 0;
+        state = AIMode.SCOUT;
     }
 
     public enum Direction {
