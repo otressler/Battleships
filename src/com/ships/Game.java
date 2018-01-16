@@ -86,7 +86,7 @@ public class Game {
             for (ShipType type : shipList)
                 requestPlacement(type);
         } else {
-            battlegrounds[player] = ai.placementAI.placeShips(shipList);
+            battlegrounds[player] = ai.placementAI.placeShips(shipList, "dense");
         }
     }
 

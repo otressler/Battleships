@@ -108,7 +108,7 @@ public class Battleground {
      * @param ship The ship that is supposed to be placed
      * @return true if fields are blocked, false if they arent
      */
-    private boolean checkForBlockedFields(Ship ship) {
+    public boolean checkForBlockedFields(Ship ship) {
         if (ship.verticalRotation) {
             for (int i = 0; i < ship.length; i++) {
                 if (battleground[ship.yPos + i][ship.xPos].equals(FieldState.BLOCKED) || battleground[ship.yPos + i][ship.xPos].equals(FieldState.SHIP)) {
