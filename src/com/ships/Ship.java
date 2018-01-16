@@ -61,11 +61,11 @@ public class Ship {
         ArrayList<Coordinate> coordinates = new ArrayList<>();
 
         if (verticalRotation) {
-            for (int i = 0; i <= type.getLength(); i++) {
+            for (int i = 0; i < type.getLength(); i++) {
                 coordinates.add(new Coordinate(xPos, yPos + i));
             }
         } else {
-            for (int i = 0; i <= type.getLength(); i++) {
+            for (int i = 0; i < type.getLength(); i++) {
                 coordinates.add(new Coordinate(xPos + i, yPos));
             }
         }
