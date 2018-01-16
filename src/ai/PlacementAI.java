@@ -23,6 +23,7 @@ public class PlacementAI {
         int newXPos, newYPos;
         boolean newVerticalRotation;
         int battlegroundSize = bg.battleground.length - 1;
+        int[][] distanceBattlefield = new int[battlegroundSize][battlegroundSize];
         Ship tempShip;
         Random random = new Random();
 
@@ -56,6 +57,20 @@ public class PlacementAI {
     public enum PositionStrategy {
         SPARSE, DENSE, RANDOM
     }
+
+    /*private int[][] distanceMatrixPerShip(Ship ship) {
+
+        int[][] distanceMatrix = new int[10][10];
+
+        for (ship.getCoordinates()) {
+            for (int yField = 0; yField < distanceMatrix.length; yField++) {
+                for (int xField = 0; xField < distanceMatrix[yField].length; xField++) {
+
+                }
+            }
+        }
+        return distanceMatrix;
+    }*/
 
 
 }
