@@ -1,9 +1,6 @@
 package ai;
 
-import com.ships.Battleground;
-import com.ships.Game;
-import com.ships.Ship;
-import com.ships.ShipType;
+import com.ships.*;
 
 import javax.swing.text.Position;
 import java.util.ArrayList;
@@ -33,13 +30,18 @@ public class PlacementAI {
             case DENSE: // low distance between ships
                 break;
             case RANDOM: // random distance between ships
-                for (int i = 0; i < shipList.length; i++) {
+                for (ShipType type : shipList) {
 
                     do {
-                        newXPos = random.nextInt(battlegroundSize);
-                        newYPos = random.nextInt(battlegroundSize);
                         newVerticalRotation = random.nextBoolean();
-                        tempShip = new Ship(shipList[i], newXPos, newYPos, newVerticalRotation);
+                        if(newVerticalRotation) {
+                            newXPos = random.nextInt(battlegroundSize);
+                            newYPos = random.nextInt(battlegroundSize)-type.getLength();
+                        } else{
+                            newXPos = random.nextInt(battlegroundSize)-type.getLength();
+                            newYPos = random.nextInt(battlegroundSize);
+                        }
+                        tempShip = new Ship(type, newXPos, newYPos, newVerticalRotation);
                     } while (bg.checkForBlockedFields(tempShip));
 
                     Ship s = tempShip;
@@ -58,19 +60,46 @@ public class PlacementAI {
         SPARSE, DENSE, RANDOM
     }
 
-    /*private int[][] distanceMatrixPerShip(Ship ship) {
+    private int[][] distanceMatrixPerShip(Ship ship) {
 
-        int[][] distanceMatrix = new int[10][10];
+        ArrayList<int[][]> distanceMatrices = new ArrayList<>();
+        int[][] fullDistanceMatrix = new int[10][10];
 
-        for (ship.getCoordinates()) {
+        // generate euclidean distance matrix for each coordinate of a ship
+        for (Coordinate coordinates: ship.getCoordinates()) {
+
+            int xShip = coordinates.getX();
+            int yShip = coordinates.getY();
+            int[][] singleDistanceMatrix = new int[10][10];
+
+            for (int yField = 0; yField < singleDistanceMatrix.length; yField++) {
+                for (int xField = 0; xField < singleDistanceMatrix[yField].length; xField++) {
+                    singleDistanceMatrix[yField][xField] = (int)(Math.sqrt((xShip - xField) * (xShip - xField) + (yShip - yField) * (yShip - yField)));
+                }
+            }
+
+            distanceMatrices.add(singleDistanceMatrix);
+
+        }
+
+        // generate basic fullDistanceMatrix with high values in every field
+        for (int yField = 0; yField < fullDistanceMatrix.length; yField++) {
+            for (int xField = 0; xField < fullDistanceMatrix[yField].length; xField++) {
+                fullDistanceMatrix[yField][xField] = 100;
+            }
+        }
+
+        // set fields to min value of all matrices
+        for (int[][] distanceMatrix: distanceMatrices) {
             for (int yField = 0; yField < distanceMatrix.length; yField++) {
                 for (int xField = 0; xField < distanceMatrix[yField].length; xField++) {
-
+                    fullDistanceMatrix[yField][xField] = Math.min(distanceMatrix[yField][xField], fullDistanceMatrix[yField][xField]);
                 }
             }
         }
-        return distanceMatrix;
-    }*/
+
+        return fullDistanceMatrix;
+    }
 
 
 }
