@@ -15,4 +15,8 @@ public class Coordinate {
     public int getY() {
         return y;
     }
+
+    public Coordinate delta(int deltaX, int deltaY) {
+        return new Coordinate(x + deltaX, y + deltaY);
+    }
 }

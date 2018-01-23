@@ -6,7 +6,11 @@ import com.ships.Game;
 
 import java.util.*;
 
+// TODO:
+
 public class GuessAI {
+    ArrayList<Module> modules;
+
     Battleground aiMap;
     Stack<Coordinate> nextGuesses;
     AIMode state = AIMode.SCOUT;
@@ -16,10 +20,130 @@ public class GuessAI {
 
     // The following fields are used to determine the orientation of the enemy ship during ATTACK_ADJACENT
     Coordinate initialHit;
-    ArrayList<Direction> possibleDirections = new ArrayList<>();
     Direction currentDirection;
+    boolean sunk;
+
     int hits = 0;
     int miss = 0;
+
+    public void hitDuringScout(int x, int y) {
+        stateChange(AIMode.ATTACK_ADJACENT);
+        // TODO: Check for irrelevant fields in switch statement
+        for (int i = 0; i < 4; i++) {
+            Integer[] options = {0, 1, 2, 3};
+            List<Integer> choices = Arrays.asList(options);
+            Collections.shuffle(choices);
+            initialHit = new Coordinate(x, y);
+            for (Integer choice : choices) {
+                switch (choice) {
+                    case 0:
+                        if (x + 1 < 10) {
+                            nextGuesses.push(new Coordinate(x + 1, y));
+                        }
+                        break;
+                    case 1:
+                        if (x - 1 >= 0) {
+                            nextGuesses.push(new Coordinate(x - 1, y));
+                        }
+                        break;
+                    case 2:
+                        if (y + 1 < 10) {
+                            nextGuesses.push(new Coordinate(x, y + 1));
+                        }
+                        break;
+                    case 3:
+                        if (y - 1 >= 0) {
+                            nextGuesses.push(new Coordinate(x, y - 1));
+                        }
+                        break;
+                    default:
+                        System.out.println("Illegal number generated");
+                }
+            }
+        }
+    }
+
+    public void missDuringScout(int x, int y) {
+        aiMap.battleground[y][x] = Battleground.FieldState.IGNORE;
+    }
+
+    /**
+     * Determine the attack vector.
+     * If the hit after the initial hit is shifted on the y-axis, the ship is placed vertically, else it is placed
+     * horizontally. If the ship that has been hit was placed at a border (e.g. X = 0, Y = 4, orient. = horizontal)
+     * this is taken into account for the attack vector.
+     * A call of this method sets the AI into ATTACK mode.
+     *
+     * @param x X position of the follow up hit
+     * @param y Y position of the follow up hit
+     */
+    public void hitDuringAttackAdjacent(int x, int y) {
+        // Hit right from initialHit
+        if (x > initialHit.getX()) {
+            currentDirection = Direction.RIGHT;
+
+            // Remove adjacentFieldsFromStack
+            for (int i = 0; i < 3 - miss; i++)
+                nextGuesses.pop();
+
+            // Check if already at border
+            if (x + 1 > 9) {
+                currentDirection = Direction.LEFT;
+                nextGuesses.push(new Coordinate(initialHit.getX() - 1, initialHit.getY()));
+            } else
+                // Try fields to the right from current hit
+                nextGuesses.push(new Coordinate(x + 1, y));
+
+        }
+        // Hit left from initialHit
+        else if (x < initialHit.getX()) {
+            currentDirection = Direction.LEFT;
+
+            // Remove adjacentFieldsFromStack
+            for (int i = 0; i < 3 - miss; i++)
+                nextGuesses.pop();
+
+            // Check if already at border
+            if (x - 1 < 0) {
+                currentDirection = Direction.RIGHT;
+                nextGuesses.push(new Coordinate(initialHit.getX() + 1, initialHit.getY()));
+            } else
+                // Try fields to the left from current hit
+                nextGuesses.push(new Coordinate(x - 1, y));
+        }
+        // Hit below initialHit
+        else if (y > initialHit.getY()) {
+            currentDirection = Direction.DOWN;
+
+            // Remove adjacentFieldsFromStack
+            for (int i = 0; i < 3 - miss; i++)
+                nextGuesses.pop();
+
+            // Check if already at border
+            if (y + 1 > 9) {
+                currentDirection = Direction.UP;
+                nextGuesses.push(new Coordinate(initialHit.getX(), initialHit.getY() - 1));
+            } else
+                nextGuesses.push(new Coordinate(x, y + 1));
+        }
+        // Hit above initialHit
+        else if (y < initialHit.getY()) {
+            currentDirection = Direction.UP;
+            // Remove adjacentFieldsFromStack
+            for (int i = 0; i < 3 - miss; i++)
+                nextGuesses.pop();
+
+            // Check if already at border
+            if (y - 1 < 0) {
+                currentDirection = Direction.DOWN;
+                nextGuesses.push(new Coordinate(initialHit.getX(), initialHit.getY() + 1));
+            } else
+                nextGuesses.push(new Coordinate(x, y - 1));
+        }
+
+        hits++;
+        stateChange(AIMode.ATTACK);
+    }
 
     public GuessAI(Game game) {
         this.aiMap = new Battleground(game);
@@ -68,10 +192,6 @@ public class GuessAI {
     public void onMiss(int x, int y) {
         if (state.equals(AIMode.SCOUT)) {
             missDuringScout(x, y);
-            possibleDirections.add(Direction.UP);
-            possibleDirections.add(Direction.DOWN);
-            possibleDirections.add(Direction.LEFT);
-            possibleDirections.add(Direction.RIGHT);
         } else if (state.equals(AIMode.ATTACK_ADJACENT)) {
             missDuringAttackAdjacent(x, y);
         } else if (state.equals(AIMode.ATTACK)) {
@@ -80,129 +200,14 @@ public class GuessAI {
         // TODO: Check if further fields have become irrelevant
     }
 
-    public void hitDuringScout(int x, int y) {
-        state = AIMode.ATTACK_ADJACENT;
-        Random r = new Random();
-        // TODO: Check for irrelevant fields in switch statement
-        for (int i = 0; i < 4; i++) {
-            Integer[] options = {0, 1, 2, 3};
-            List<Integer> choices = Arrays.asList(options);
-            Collections.shuffle(choices);
-            initialHit = new Coordinate(x, y);
-            for (Integer choice : choices) {
-                switch (choice) {
-                    case 0:
-                        nextGuesses.push(new Coordinate(x + 1, y));
-                        break;
-                    case 1:
-                        nextGuesses.push(new Coordinate(x - 1, y));
-                        break;
-                    case 2:
-                        nextGuesses.push(new Coordinate(x, y + 1));
-                        break;
-                    case 3:
-                        nextGuesses.push(new Coordinate(x, y - 1));
-                        break;
-                    default:
-                        System.out.println("Illegal number generated");
-                }
-            }
-        }
-    }
-
-    public void missDuringScout(int x, int y) {
-        // TODO: Remove possible direction
-        // TODO: Remove possible direction based on max enemy shipLength
-
-        // Miss right from initialHit
-        if (x > initialHit.getX()) {
-            possibleDirections.remove(Direction.RIGHT);
-        }
-        // Miss left from initialHit
-        else if (x < initialHit.getX()) {
-            possibleDirections.remove(Direction.LEFT);
-        }
-        // Miss above initialHit
-        else if (y > initialHit.getY()) {
-            possibleDirections.remove(Direction.UP);
-        }
-        // Miss below initialHit
-        else if (y < initialHit.getY()) {
-            possibleDirections.remove(Direction.DOWN);
-        }
-    }
-
-    public void hitDuringAttackAdjacent(int x, int y) {
-        // Hit right from initialHit
-        if (x > initialHit.getX()) {
-            // Remove vertical directions
-            possibleDirections.remove(Direction.DOWN);
-            possibleDirections.remove(Direction.UP);
-
-            // Remove adjacentFieldsFromStack
-            for (int i = 0; i < 3 - miss; i++)
-                nextGuesses.pop();
-
-            // Try fields to the right from current hit
-            currentDirection = Direction.RIGHT;
-            nextGuesses.push(new Coordinate(x + 1, y));
-            hits++;
-            state = AIMode.ATTACK;
-        }
-        // Hit left from initialHit
-        else if (x < initialHit.getX()) {
-            // Remove vertical directions
-            possibleDirections.remove(Direction.DOWN);
-            possibleDirections.remove(Direction.UP);
-
-            // Remove adjacentFieldsFromStack
-            for (int i = 0; i < 3 - miss; i++)
-                nextGuesses.pop();
-
-
-            // Try fields to the left from current hit
-            currentDirection = Direction.LEFT;
-            nextGuesses.push(new Coordinate(x - 1, y));
-            hits++;
-            state = AIMode.ATTACK;
-        }
-        // Hit above initialHit
-        else if (y > initialHit.getY()) {
-            // Remove horizontal directions
-            possibleDirections.remove(Direction.LEFT);
-            possibleDirections.remove(Direction.RIGHT);
-
-            // Remove adjacentFieldsFromStack
-            for (int i = 0; i < 3 - miss; i++)
-                nextGuesses.pop();
-
-            currentDirection = Direction.DOWN;
-            nextGuesses.push(new Coordinate(x, y + 1));
-            hits++;
-            state = AIMode.ATTACK;
-        }
-        // Hit below initialHit
-        else if (y < initialHit.getY()) {
-            // Remove horizontal directions
-            possibleDirections.remove(Direction.LEFT);
-            possibleDirections.remove(Direction.RIGHT);
-
-            // Remove adjacentFieldsFromStack
-            for (int i = 0; i < 3 - miss; i++)
-                nextGuesses.pop();
-
-            currentDirection = Direction.UP;
-            nextGuesses.push(new Coordinate(x, y - 1));
-            hits++;
-            state = AIMode.ATTACK;
-        }
-    }
-
-    public void missDuringAttackAdjacent(int x, int y) {
-        miss++;
-    }
-
+    /**
+     * Follow up hits after direction is determined
+     *
+     * @param x X-Coord of attacked field
+     * @param y Y-Coord of attacked field
+     */
     public void hitDuringAttack(int x, int y) {
+        aiMap.battleground[y][x] = Battleground.FieldState.IGNORE;
         switch (currentDirection) {
             case UP:
                 nextGuesses.push(new Coordinate(x, y - 1));
@@ -217,38 +222,58 @@ public class GuessAI {
                 nextGuesses.push(new Coordinate(x + 1, y));
                 break;
             default:
-                System.out.println("BÖÖÖP");
+                System.out.println("Default case during hitDuringAttack. This should not happen!");
         }
     }
 
     public void missDuringAttack(int x, int y) {
-        possibleDirections.remove(currentDirection);
-        currentDirection = possibleDirections.get(0);
-
+        aiMap.battleground[y][x] = Battleground.FieldState.IGNORE;
         switch (currentDirection) {
             case UP:
-                nextGuesses.push(new Coordinate(initialHit.getX(), initialHit.getY() - 1));
+                currentDirection = Direction.DOWN;
+                nextGuesses.push(initialHit.delta(0, 1));
                 break;
             case DOWN:
-                nextGuesses.push(new Coordinate(initialHit.getX(), initialHit.getY() + 1));
+                currentDirection = Direction.UP;
+                nextGuesses.push(initialHit.delta(0, -1));
                 break;
             case LEFT:
-                nextGuesses.push(new Coordinate(initialHit.getX() - 1, initialHit.getY()));
+                currentDirection = Direction.RIGHT;
+                nextGuesses.push(initialHit.delta(1, 0));
                 break;
             case RIGHT:
-                nextGuesses.push(new Coordinate(initialHit.getX() + 1, initialHit.getY()));
+                currentDirection = Direction.LEFT;
+                nextGuesses.push(initialHit.delta(-1, 0));
                 break;
             default:
-                System.out.println("MÖÖÖP");
+                System.out.println("Default case during missDuringAttack. This should not happen");
         }
     }
 
     public void onSunk(int x, int y) {
-        state = AIMode.SCOUT;
+        System.out.println("AI has been noticed that the ship has been sunk");
+        currentDirection = Direction.UNKNOWN;
+        stateChange(AIMode.SCOUT);
+    }
+
+    public void missDuringAttackAdjacent(int x, int y) {
+        miss++;
+    }
+
+    public void stateChange(AIMode destinationState) {
+        System.out.println("AI Mode set to " + destinationState.name());
+        state = destinationState;
+    }
+
+    public enum Module {
+        CHECKERBOARD,
+        HIT_REACTION,
+        SPACE_ANALYSIS,
+        MEMORY
     }
 
     public enum Direction {
-        LEFT, RIGHT, UP, DOWN
+        LEFT, RIGHT, UP, DOWN, UNKNOWN
     }
 
     enum AIMode {

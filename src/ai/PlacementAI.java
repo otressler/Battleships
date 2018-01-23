@@ -26,8 +26,9 @@ public class PlacementAI {
                 return placeDense(shipList);
             case RANDOM: // random distance between ships
                 return placeRandomly(shipList);
+            default:
+                return placeRandomly(shipList);
         }
-        return bg;
     }
 
     private Battleground placeDense(ShipType[] shipList) {

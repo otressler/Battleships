@@ -94,6 +94,10 @@ public class Battleground {
                         for (int i = 0; i < s.length; i++) {
                             battleground[s.yPos + i][s.xPos] = Battleground.FieldState.SUNK;
                         }
+                    } else {
+                        for (int i = 0; i < s.length; i++) {
+                            battleground[s.yPos][s.xPos + i] = Battleground.FieldState.SUNK;
+                        }
                     }
                 }
                 return true;
