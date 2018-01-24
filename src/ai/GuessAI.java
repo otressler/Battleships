@@ -210,16 +210,28 @@ public class GuessAI {
         aiMap.battleground[y][x] = Battleground.FieldState.IGNORE;
         switch (currentDirection) {
             case UP:
-                nextGuesses.push(new Coordinate(x, y - 1));
+                if(Coordinate.validCoordinate(x, y))
+                    nextGuesses.push(new Coordinate(x, y - 1));
+                else
+                    directionSwitch();
                 break;
             case DOWN:
-                nextGuesses.push(new Coordinate(x, y + 1));
+                if(Coordinate.validCoordinate(x, y))
+                    nextGuesses.push(new Coordinate(x, y + 1));
+                else
+                    directionSwitch();
                 break;
             case LEFT:
-                nextGuesses.push(new Coordinate(x - 1, y));
+                if(Coordinate.validCoordinate(x, y))
+                    nextGuesses.push(new Coordinate(x - 1, y));
+                else
+                    directionSwitch();
                 break;
             case RIGHT:
-                nextGuesses.push(new Coordinate(x + 1, y));
+                if(Coordinate.validCoordinate(x, y))
+                    nextGuesses.push(new Coordinate(x + 1, y));
+                else
+                    directionSwitch();
                 break;
             default:
                 System.out.println("Default case during hitDuringAttack. This should not happen!");
@@ -228,6 +240,20 @@ public class GuessAI {
 
     public void missDuringAttack(int x, int y) {
         aiMap.battleground[y][x] = Battleground.FieldState.IGNORE;
+        directionSwitch();
+    }
+
+    public void onSunk(int x, int y) {
+        System.out.println("AI has been noticed that the ship has been sunk");
+        currentDirection = Direction.UNKNOWN;
+        stateChange(AIMode.SCOUT);
+    }
+
+    public void missDuringAttackAdjacent(int x, int y) {
+        miss++;
+    }
+
+    private void directionSwitch(){
         switch (currentDirection) {
             case UP:
                 currentDirection = Direction.DOWN;
@@ -250,16 +276,6 @@ public class GuessAI {
         }
     }
 
-    public void onSunk(int x, int y) {
-        System.out.println("AI has been noticed that the ship has been sunk");
-        currentDirection = Direction.UNKNOWN;
-        stateChange(AIMode.SCOUT);
-    }
-
-    public void missDuringAttackAdjacent(int x, int y) {
-        miss++;
-    }
-
     public void stateChange(AIMode destinationState) {
         System.out.println("AI Mode set to " + destinationState.name());
         state = destinationState;
@@ -276,7 +292,7 @@ public class GuessAI {
         LEFT, RIGHT, UP, DOWN, UNKNOWN
     }
 
-    enum AIMode {
+    public enum AIMode {
         SCOUT, ATTACK, ATTACK_ADJACENT
     }
 }

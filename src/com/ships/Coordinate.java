@@ -19,4 +19,22 @@ public class Coordinate {
     public Coordinate delta(int deltaX, int deltaY) {
         return new Coordinate(x + deltaX, y + deltaY);
     }
+
+    public static boolean validCoordinate(Coordinate c){
+        if(c.getX() < 0 || c.getX() > 9 || c.getY() < 0 || c.getY() > 9){
+            return false;
+        }
+        else{
+            return true;
+        }
+    }
+
+    public static boolean validCoordinate(int x, int y){
+        if(x < 0 || x > 9 || y < 0 || y > 9){
+            return false;
+        }
+        else{
+            return true;
+        }
+    }
 }
