@@ -13,6 +13,7 @@ public class GuessAI {
     private Stack<Coordinate> nextGuesses;
     private AIMode state = AIMode.SCOUT;
 
+    GapChecker gapChecker = new GapChecker();
 
     private int maxEnemyShipLength = 5;
     private int minEnemyShipLength = 2;

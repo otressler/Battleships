@@ -29,6 +29,10 @@ public class Coordinate {
         }
     }
 
+    public String toString(){
+        return x+"|"+y;
+    }
+
     public boolean equals(Coordinate c){
         if(c.x == this.x && c.y == this.y)
             return true;
