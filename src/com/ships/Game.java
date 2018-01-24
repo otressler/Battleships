@@ -88,9 +88,9 @@ public class Game {
 
     public void placementPhase(int player) {
         if (player == 0) {
-            //for (ShipType type : shipList)
-            //    requestPlacement(type);
-            battlegrounds[player] = new PlacementAI(this, PlacementAI.PositionStrategy.RANDOM).placeShips(shipList);
+            for (ShipType type : shipList)
+                requestPlacement(type);
+            //battlegrounds[player] = new PlacementAI(this, PlacementAI.PositionStrategy.RANDOM).placeShips(shipList);
         } else {
             battlegrounds[player] = ai.placementAI.placeShips(shipList);
         }

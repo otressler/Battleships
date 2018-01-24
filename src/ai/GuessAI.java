@@ -4,26 +4,25 @@ import com.ships.*;
 
 import java.util.*;
 
-// TODO:
-
 public class GuessAI {
-    ArrayList<Module> modules;
-    ArrayList<ShipType> enemyShips;
+    private ArrayList<Module> modules;
+    private ArrayList<ShipType> enemyShips;
 
 
-    Battleground aiMap;
-    Stack<Coordinate> nextGuesses;
-    AIMode state = AIMode.SCOUT;
+    private Battleground aiMap;
+    private Stack<Coordinate> nextGuesses;
+    private AIMode state = AIMode.SCOUT;
 
 
-    int maxEnemyShipLength, minEnemyShipLength;
+    private int maxEnemyShipLength = 5;
+    private int minEnemyShipLength = 2;
 
     // The following fields are used to determine the orientation of the enemy ship during ATTACK_ADJACENT
-    Coordinate initialHit;
-    Direction currentDirection;
+    private Coordinate initialHit;
+    private Direction currentDirection = Direction.UNKNOWN;
 
-    int hits = 0;
-    int miss = 0;
+    private int hits = 0;
+    private int miss = 0;
 
     public GuessAI(Game game, ArrayList<Module> modules) {
         this.aiMap = new Battleground(game);
@@ -33,12 +32,96 @@ public class GuessAI {
             initCheckerboard();
         else
             initAllFields();
-        maxEnemyShipLength = 5;
-        minEnemyShipLength = 2;
         enemyShips = Util.convertShipList(game.shipList);
     }
 
-    public void hitDuringScout(int x, int y) {
+    private void initAllFields(){
+        for (int y = 0; y < 10; y++) {
+            for (int x = 0; x < 10; x ++) {
+                nextGuesses.push(new Coordinate(x, y));
+                aiMap.battleground[y][x] = Battleground.FieldState.IGNORE;
+            }
+        }
+        Collections.shuffle(nextGuesses);
+    }
+
+    private void initCheckerboard() {
+        for (int y = 0; y < 10; y++) {
+            for (int x = y % 2; x < 10; x += 2) {
+                nextGuesses.push(new Coordinate(x, y));
+                aiMap.battleground[y][x] = Battleground.FieldState.POTENTIAL;
+            }
+        }
+        Collections.shuffle(nextGuesses);
+    }
+
+    public Coordinate getNextGuess() {
+        while(aiMap.battleground[nextGuesses.peek().getY()][nextGuesses.peek().getX()].equals(Battleground.FieldState.IGNORE))
+            nextGuesses.pop();
+        aiMap.battleground[nextGuesses.peek().getY()][nextGuesses.peek().getX()] = Battleground.FieldState.IGNORE;
+        return nextGuesses.pop();
+    }
+
+    private void updateActiveShips(Ship ship){
+        for(Iterator<ShipType> i = enemyShips.iterator(); i.hasNext();){
+            if(i.next().getLength() == hits){
+                i.remove();
+            }
+        }
+
+        ignoreAdjacentBlockedFields(ship);
+
+        calculateMinEnemyShipLength();
+        calculateMaxEnemyShipLength();
+    }
+
+    public void onHit(int x, int y) {
+        if(modules.contains(Module.HIT_REACTION)) {
+            if (state.equals(AIMode.SCOUT)) {
+                hitDuringScout(x, y);
+            } else if (state.equals(AIMode.ATTACK_ADJACENT)) {
+                hitDuringAttackAdjacent(x, y);
+            } else if (state.equals(AIMode.ATTACK)) {
+                hitDuringAttack(x, y);
+            }
+
+            hits++;
+        }
+        // TODO: Check if further fields have become irrelevant
+        // Push coordinates next to hit on stack
+        // Enter AttackMode
+        // After hitting ship for the second time and !sunk
+        // set orientation
+        // calculate max enemy shiplength
+        // try next field depending on orientation
+        // on first miss try other direction if ship has not been sunk
+        // fire as long as hit fields < max enemy shiplength || ship sunk
+        // Mark everything around sunk ship as IGNORE
+        // Remove ignored fields from checkerboard stack
+    }
+
+    public void onMiss(int x, int y) {
+        if (state.equals(AIMode.SCOUT)) {
+            missDuringScout(x, y);
+        } else if (state.equals(AIMode.ATTACK_ADJACENT)) {
+            missDuringAttackAdjacent(x, y);
+        } else if (state.equals(AIMode.ATTACK)) {
+            missDuringAttack(x, y);
+        }
+        // TODO: Check if further fields have become irrelevant
+    }
+
+    public void onSunk(Ship s) {
+        updateActiveShips(s);
+
+        System.out.println("AI has been noticed that the ship has been sunk");
+        currentDirection = Direction.UNKNOWN;
+        stateChange(AIMode.SCOUT);
+
+        hits = 0;
+    }
+
+    private void hitDuringScout(int x, int y) {
         stateChange(AIMode.ATTACK_ADJACENT);
         // TODO: Check for irrelevant fields in switch statement
         for (int i = 0; i < 4; i++) {
@@ -75,7 +158,7 @@ public class GuessAI {
         }
     }
 
-    public void missDuringScout(int x, int y) {
+    private void missDuringScout(int x, int y) {
         aiMap.battleground[y][x] = Battleground.FieldState.IGNORE;
     }
 
@@ -89,7 +172,7 @@ public class GuessAI {
      * @param x X position of the follow up hit
      * @param y Y position of the follow up hit
      */
-    public void hitDuringAttackAdjacent(int x, int y) {
+    private void hitDuringAttackAdjacent(int x, int y) {
         // Hit right from initialHit
         if (x > initialHit.getX()) {
             currentDirection = Direction.RIGHT;
@@ -157,67 +240,8 @@ public class GuessAI {
         stateChange(AIMode.ATTACK);
     }
 
-    public Coordinate getNextGuess() {
-        while(aiMap.battleground[nextGuesses.peek().getY()][nextGuesses.peek().getX()].equals(Battleground.FieldState.IGNORE))
-            nextGuesses.pop();
-        aiMap.battleground[nextGuesses.peek().getY()][nextGuesses.peek().getX()] = Battleground.FieldState.IGNORE;
-        return nextGuesses.pop();
-    }
-
-    public void initCheckerboard() {
-        for (int y = 0; y < 10; y++) {
-            for (int x = y % 2; x < 10; x += 2) {
-                nextGuesses.push(new Coordinate(x, y));
-                aiMap.battleground[y][x] = Battleground.FieldState.POTENTIAL;
-            }
-        }
-        Collections.shuffle(nextGuesses);
-    }
-
-    public void initAllFields(){
-        for (int y = 0; y < 10; y++) {
-            for (int x = 0; x < 10; x ++) {
-                nextGuesses.push(new Coordinate(x, y));
-                aiMap.battleground[y][x] = Battleground.FieldState.IGNORE;
-            }
-        }
-        Collections.shuffle(nextGuesses);
-    }
-
-    public void onHit(int x, int y) {
-        if(modules.contains(Module.HIT_REACTION)) {
-            if (state.equals(AIMode.SCOUT)) {
-                hitDuringScout(x, y);
-            } else if (state.equals(AIMode.ATTACK_ADJACENT)) {
-                hitDuringAttackAdjacent(x, y);
-            } else if (state.equals(AIMode.ATTACK)) {
-                hitDuringAttack(x, y);
-            }
-
-            hits++;
-        }
-        // TODO: Check if further fields have become irrelevant
-        // Push coordinates next to hit on stack
-        // Enter AttackMode
-        // After hitting ship for the second time and !sunk
-        // set orientation
-        // calculate max enemy shiplength
-        // try next field depending on orientation
-        // on first miss try other direction if ship has not been sunk
-        // fire as long as hit fields < max enemy shiplength || ship sunk
-        // Mark everything around sunk ship as IGNORE
-        // Remove ignored fields from checkerboard stack
-    }
-
-    public void onMiss(int x, int y) {
-        if (state.equals(AIMode.SCOUT)) {
-            missDuringScout(x, y);
-        } else if (state.equals(AIMode.ATTACK_ADJACENT)) {
-            missDuringAttackAdjacent(x, y);
-        } else if (state.equals(AIMode.ATTACK)) {
-            missDuringAttack(x, y);
-        }
-        // TODO: Check if further fields have become irrelevant
+    private void missDuringAttackAdjacent(int x, int y) {
+        miss++;
     }
 
     /**
@@ -226,7 +250,7 @@ public class GuessAI {
      * @param x X-Coord of attacked field
      * @param y Y-Coord of attacked field
      */
-    public void hitDuringAttack(int x, int y) {
+    private void hitDuringAttack(int x, int y) {
         aiMap.battleground[y][x] = Battleground.FieldState.IGNORE;
         switch (currentDirection) {
             case UP:
@@ -258,36 +282,9 @@ public class GuessAI {
         }
     }
 
-    public void missDuringAttack(int x, int y) {
+    private void missDuringAttack(int x, int y) {
         aiMap.battleground[y][x] = Battleground.FieldState.IGNORE;
         directionSwitch();
-    }
-
-    public void onSunk(Ship s) {
-        updateActiveShips(s);
-
-        System.out.println("AI has been noticed that the ship has been sunk");
-        currentDirection = Direction.UNKNOWN;
-        stateChange(AIMode.SCOUT);
-
-        hits = 0;
-    }
-
-    public void updateActiveShips(Ship ship){
-        for(Iterator<ShipType> i = enemyShips.iterator(); i.hasNext();){
-            if(i.next().getLength() == hits){
-                i.remove();
-            }
-        }
-
-        ignoreAdjacentBlockedFields(ship);
-
-        calculateMinEnemyShipLength();
-        calculateMaxEnemyShipLength();
-    }
-
-    public void missDuringAttackAdjacent(int x, int y) {
-        miss++;
     }
 
     private void directionSwitch(){
@@ -313,61 +310,63 @@ public class GuessAI {
         }
     }
 
-    public void stateChange(AIMode destinationState) {
+    private void stateChange(AIMode destinationState) {
         System.out.println("AI Mode set to " + destinationState.name());
         state = destinationState;
     }
 
-    public void ignoreAdjacentBlockedFields(Ship ship){
-        System.out.println(currentDirection.name());
-        if (currentDirection.equals(Direction.UP) || currentDirection.equals(Direction.DOWN)) {
-            // Block field over the ship
-            if (ship.yPos > 0) {
-                aiMap.battleground[ship.yPos - 1][ship.xPos] = Battleground.FieldState.IGNORE;
-            }
-            // Block fields below the ship
-            if (ship.yPos + ship.length <= 9) {
-                aiMap.battleground[ship.yPos + ship.length][ship.xPos] = Battleground.FieldState.IGNORE;
-            }
-            // Block fields covered by the ship
-            for (int i = 0; i < ship.length; i++) {
-                aiMap.battleground[ship.yPos + i][ship.xPos] = Battleground.FieldState.IGNORE;
-            }
-            // Block fields left from the ship
-            if (ship.xPos > 0) {
-                for (int i = 0; i < ship.length; i++) {
-                    aiMap.battleground[ship.yPos + i][ship.xPos - 1] = Battleground.FieldState.IGNORE;
+    private void ignoreAdjacentBlockedFields(Ship ship){
+        if(modules.contains(Module.IGNORE_BLOCKED)) {
+            System.out.println(currentDirection.name());
+            if (currentDirection.equals(Direction.UP) || currentDirection.equals(Direction.DOWN)) {
+                // Block field over the ship
+                if (ship.yPos > 0) {
+                    aiMap.battleground[ship.yPos - 1][ship.xPos] = Battleground.FieldState.IGNORE;
                 }
-            }
-            // Block fields right from the ship
-            if (ship.xPos < 9) {
-                for (int i = 0; i < ship.length; i++) {
-                    aiMap.battleground[ship.yPos + i][ship.xPos + 1] = Battleground.FieldState.IGNORE;
+                // Block fields below the ship
+                if (ship.yPos + ship.length <= 9) {
+                    aiMap.battleground[ship.yPos + ship.length][ship.xPos] = Battleground.FieldState.IGNORE;
                 }
-            }
-        } else {
-            // Block fields left from the ship
-            if (ship.xPos > 0) {
-                aiMap.battleground[ship.yPos][ship.xPos - 1] = Battleground.FieldState.IGNORE;
-            }
-            // Block fields right from the ship
-            if (ship.xPos + ship.length <= 9) {
-                aiMap.battleground[ship.yPos][ship.xPos + ship.length] = Battleground.FieldState.IGNORE;
-            }
-            // Block fields covered by the ship
-            for (int i = 0; i < ship.length; i++) {
-                aiMap.battleground[ship.yPos][ship.xPos + i] = Battleground.FieldState.IGNORE;
-            }
-            // Block field over the ship
-            if (ship.yPos > 0) {
+                // Block fields covered by the ship
                 for (int i = 0; i < ship.length; i++) {
-                    aiMap.battleground[ship.yPos - 1][ship.xPos + i] = Battleground.FieldState.IGNORE;
+                    aiMap.battleground[ship.yPos + i][ship.xPos] = Battleground.FieldState.IGNORE;
                 }
-            }
-            // Block fields below the ship
-            if (ship.yPos < 9) {
+                // Block fields left from the ship
+                if (ship.xPos > 0) {
+                    for (int i = 0; i < ship.length; i++) {
+                        aiMap.battleground[ship.yPos + i][ship.xPos - 1] = Battleground.FieldState.IGNORE;
+                    }
+                }
+                // Block fields right from the ship
+                if (ship.xPos < 9) {
+                    for (int i = 0; i < ship.length; i++) {
+                        aiMap.battleground[ship.yPos + i][ship.xPos + 1] = Battleground.FieldState.IGNORE;
+                    }
+                }
+            } else {
+                // Block fields left from the ship
+                if (ship.xPos > 0) {
+                    aiMap.battleground[ship.yPos][ship.xPos - 1] = Battleground.FieldState.IGNORE;
+                }
+                // Block fields right from the ship
+                if (ship.xPos + ship.length <= 9) {
+                    aiMap.battleground[ship.yPos][ship.xPos + ship.length] = Battleground.FieldState.IGNORE;
+                }
+                // Block fields covered by the ship
                 for (int i = 0; i < ship.length; i++) {
-                    aiMap.battleground[ship.yPos + 1][ship.xPos + i] = Battleground.FieldState.IGNORE;
+                    aiMap.battleground[ship.yPos][ship.xPos + i] = Battleground.FieldState.IGNORE;
+                }
+                // Block field over the ship
+                if (ship.yPos > 0) {
+                    for (int i = 0; i < ship.length; i++) {
+                        aiMap.battleground[ship.yPos - 1][ship.xPos + i] = Battleground.FieldState.IGNORE;
+                    }
+                }
+                // Block fields below the ship
+                if (ship.yPos < 9) {
+                    for (int i = 0; i < ship.length; i++) {
+                        aiMap.battleground[ship.yPos + 1][ship.xPos + i] = Battleground.FieldState.IGNORE;
+                    }
                 }
             }
         }
@@ -391,13 +390,14 @@ public class GuessAI {
                 tempMin = type.getLength();
             }
         }
-        if(tempMin>maxEnemyShipLength)
-            maxEnemyShipLength = tempMin;
+        if(tempMin>minEnemyShipLength)
+            minEnemyShipLength = tempMin;
     }
 
     public enum Module {
         CHECKERBOARD,
         HIT_REACTION,
+        IGNORE_BLOCKED,
         SPACE_ANALYSIS,
         MEMORY
         }

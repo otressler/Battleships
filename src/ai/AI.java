@@ -16,7 +16,7 @@ public class AI {
         guessModules.add(GuessAI.Module.CHECKERBOARD);
         guessModules.add(GuessAI.Module.HIT_REACTION);
 
-        this.placementAI = new PlacementAI(game, PlacementAI.PositionStrategy.DENSE);
+        this.placementAI = new PlacementAI(game, PlacementAI.PositionStrategy.RANDOM);
         this.guessAI = new GuessAI(game, guessModules);
     }
 }
