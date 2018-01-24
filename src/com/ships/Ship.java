@@ -4,11 +4,11 @@ import java.util.ArrayList;
 
 public class Ship {
     ShipType type;
-    int xPos;
-    int yPos;
+    public int xPos;
+    public int yPos;
     boolean verticalRotation;
     int hits;
-    int length;
+    public int length;
     boolean sunk;
 
     public Ship(ShipType type, int xPos, int yPos, boolean verticalRotation) {

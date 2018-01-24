@@ -85,6 +85,18 @@ public class Battleground {
         return false;
     }
 
+    public Ship findShipByCoordinate(Coordinate coordinate){
+        for(Ship s : ships){
+            for(Coordinate c : s.getCoordinates()){
+                System.out.println(c.x+" "+c.y+"|"+coordinate.x+" "+coordinate.y);
+                if(c.equals(coordinate)){
+                    return s;
+                }
+            }
+        }
+        return null;
+    }
+
     public boolean hitEvaluation(Coordinate c) {
         for (Ship s : ships) {
             if (s.hitScan(c.x, c.y)) {

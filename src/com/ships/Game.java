@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class Game {
-    final ShipType[] shipList = {ShipType.BATTLESHIP, ShipType.CRUISER, ShipType.FRIGATE, ShipType.FRIGATE, ShipType.MINESWEEPER};
+    public final ShipType[] shipList = {ShipType.BATTLESHIP, ShipType.CRUISER, ShipType.FRIGATE, ShipType.FRIGATE, ShipType.MINESWEEPER};
     BufferedReader br;
     int player;
     Battleground[] battlegrounds;
@@ -68,7 +68,7 @@ public class Game {
             if (battlegrounds[(player + 1) % 2].hitEvaluation(aiGuess)) {
                 System.out.println("AI HIT");
                 if (battlegrounds[(player + 1) % 2].battleground[aiGuess.y][aiGuess.x].equals(Battleground.FieldState.SUNK))
-                    ai.guessAI.onSunk(aiGuess.x, aiGuess.y);
+                    ai.guessAI.onSunk(battlegrounds[(player + 1) % 2].findShipByCoordinate(aiGuess));
                 else
                     ai.guessAI.onHit(aiGuess.x, aiGuess.y);
                 guess(1);

@@ -1,5 +1,7 @@
 package com.ships;
 
+import java.util.ArrayList;
+
 public class Util {
     public static String padRight(String s, int n) {
         return String.format("%1$-" + n + "s", s);
@@ -19,6 +21,14 @@ public class Util {
 
     public static boolean parseOrientation(String coordinates) {
         return Character.toLowerCase(coordinates.charAt(2)) == 'v';
+    }
+
+    public static ArrayList<ShipType> convertShipList(ShipType[] array){
+        ArrayList<ShipType> temp = new ArrayList<>();
+        for(ShipType st : array){
+            temp.add(st);
+        }
+        return temp;
     }
 
     public static char parseCharacterFromInt(int value) {

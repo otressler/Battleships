@@ -2,6 +2,8 @@ package ai;
 
 import com.ships.Game;
 
+import java.util.ArrayList;
+
 public class AI {
     public PlacementAI placementAI;
     public GuessAI guessAI;
@@ -9,7 +11,12 @@ public class AI {
 
     public AI(Game game) {
         this.game = game;
-        this.placementAI = new PlacementAI(game, PlacementAI.PositionStrategy.SPARSE);
-        this.guessAI = new GuessAI(game);
+
+        ArrayList<GuessAI.Module> guessModules = new ArrayList<>();
+        guessModules.add(GuessAI.Module.CHECKERBOARD);
+        guessModules.add(GuessAI.Module.HIT_REACTION);
+
+        this.placementAI = new PlacementAI(game, PlacementAI.PositionStrategy.DENSE);
+        this.guessAI = new GuessAI(game, guessModules);
     }
 }

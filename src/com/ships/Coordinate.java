@@ -29,6 +29,13 @@ public class Coordinate {
         }
     }
 
+    public boolean equals(Coordinate c){
+        if(c.x == this.x && c.y == this.y)
+            return true;
+        else
+            return false;
+    }
+
     public static boolean validCoordinate(int x, int y){
         if(x < 0 || x > 9 || y < 0 || y > 9){
             return false;
