@@ -1,7 +1,7 @@
 package com.ships;
 
 import ai.AI;
-import ai.GuessAI;
+import ai.guessAI.GuessAI;
 import ai.PlacementAI;
 
 import java.io.BufferedReader;
@@ -12,24 +12,37 @@ import java.util.ArrayList;
 public class Game {
     public final ShipType[] shipList = {ShipType.BATTLESHIP, ShipType.CRUISER, ShipType.FRIGATE, ShipType.FRIGATE, ShipType.MINESWEEPER};
     BufferedReader br;
+    boolean humanEnemy = false;
     int player;
     Battleground[] battlegrounds;
     int counter = 0;
     AI ai1;
     AI ai2;
 
-    public Game() {
+    public Game(AI ai){
+        humanEnemy = true;
         player = 0;
         battlegrounds = new Battleground[2];
         battlegrounds[0] = new Battleground(this);
         battlegrounds[1] = new Battleground(this);
-        br = new BufferedReader(new InputStreamReader(System.in));
-        ArrayList<GuessAI.Module> modulesAI1 = new ArrayList<>();
-        ArrayList<GuessAI.Module> modulesAI2 = new ArrayList<>();
-        modulesAI1.add(GuessAI.Module.CHECKERBOARD);
-        modulesAI1.add(GuessAI.Module.HIT_REACTION);
-        ai1 = new AI(this, PlacementAI.PositionStrategy.RANDOM, modulesAI1, 250);
-        ai2 = new AI(this, PlacementAI.PositionStrategy.RANDOM, modulesAI2, 250);
+        this.ai2 = ai;
+
+        placementPhase(0);
+        placementPhase(1);
+        System.out.println("Now entering game phase: ");
+        while (!winCondition(0) && !winCondition(1)) {
+            System.out.println("Round " + counter);
+            round();
+        }
+    }
+
+    public Game(AI ai1, AI ai2) {
+        player = 0;
+        battlegrounds = new Battleground[2];
+        battlegrounds[0] = new Battleground(this);
+        battlegrounds[1] = new Battleground(this);
+        this.ai1 = ai1;
+        this.ai2 = ai2;
 
         placementPhase(0);
         placementPhase(1);
@@ -84,10 +97,24 @@ public class Game {
     }
 
     public void guess(int player) {
-        if (player == 0) {
+        if (player == 0 && !humanEnemy) {
             System.out.println("Turn player " + player);
             //humanGuess()
             aiGuess(ai1, ai2);
+            System.out.println("Enemy battleground | Your guesses");
+            battlegrounds[(player + 1) % 2].printBattleground(Battleground.BattlegroundMode.ENEMY);
+
+            System.out.println();
+            System.out.println("Your battleground | Enemies guesses");
+            battlegrounds[player].printBattleground(Battleground.BattlegroundMode.ENEMY);
+            System.out.println();
+            System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+            System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+            System.out.println();
+        }
+        else if(player == 0 && humanEnemy){
+            System.out.println("Turn player " + player);
+            humanGuess();
 
             battlegrounds[(player + 1) % 2].printBattleground(Battleground.BattlegroundMode.ENEMY);
             System.out.println();
@@ -112,10 +139,11 @@ public class Game {
     }
 
     public void placementPhase(int player) {
-        if (player == 0) {
-            /*for (ShipType type : shipList)
-                requestHumanPlacement(type);*/
+        if (player == 0 && !humanEnemy) {
             battlegrounds[player] = ai1.placementAI.placeShips(shipList);
+        } else if(player == 0 && humanEnemy){
+            for (ShipType type : shipList)
+                requestHumanPlacement(type);
         } else {
             battlegrounds[player] = ai2.placementAI.placeShips(shipList);
         }

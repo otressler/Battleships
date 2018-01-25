@@ -1,4 +1,4 @@
-package ai;
+package ai.guessAI;
 
 import com.ships.Coordinate;
 

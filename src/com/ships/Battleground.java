@@ -8,6 +8,21 @@ public class Battleground {
     public ArrayList<Ship> ships;
     Game game;
 
+
+    /**
+     * ONLY USE FOR AI
+     */
+    public Battleground(){
+        this.battleground = new FieldState[10][10];
+        for (int y = 0; y < battleground.length; y++) {
+            for (int x = 0; x < battleground[y].length; x++) {
+                battleground[y][x] = FieldState.NA;
+            }
+        }
+        ships = new ArrayList<>(5);
+
+    }
+
     public Battleground(Game game) {
         this.battleground = new FieldState[10][10];
         this.game = game;
@@ -32,10 +47,7 @@ public class Battleground {
                 System.out.println();
             }
         } else if (mode.equals(BattlegroundMode.ENEMY)) {
-            System.out.print("Your guesses on the enemies board      ");
-            System.out.print("Enemies guesses on your board          ");
             System.out.println();
-            System.out.print("    A  B  C  D  E  F  G  H  I  J       ");
             System.out.print("    A  B  C  D  E  F  G  H  I  J       ");
             System.out.println();
             for (int y = 0; y < battleground.length; y++) {
@@ -44,16 +56,6 @@ public class Battleground {
                     // TODO: uncomment this part
                     if (!battleground[y][x].equals(FieldState.SHIP) && !battleground[y][x].equals(FieldState.BLOCKED))
                         System.out.print("[" + battleground[y][x].getSymbol() + "]");
-                    else
-                        System.out.print("[ ]");
-                }
-
-
-                System.out.print("      ");
-                System.out.print(Util.padRight(Integer.toString(y), 3));
-                for (int x = 0; x < battleground[y].length; x++) {
-                    if (!game.getBattlegrounds()[game.getCurrentPlayer()].battleground[y][x].equals(FieldState.BLOCKED))
-                        System.out.print("[" + game.getBattlegrounds()[game.getCurrentPlayer()].battleground[y][x].getSymbol() + "]");
                     else
                         System.out.print("[ ]");
                 }

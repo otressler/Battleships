@@ -31,6 +31,11 @@ public class Util {
         return temp;
     }
 
+    public static ShipType[] getDefaultShipTypes(){
+        ShipType[] defaultTypes = {ShipType.BATTLESHIP, ShipType.CRUISER, ShipType.FRIGATE, ShipType.FRIGATE, ShipType.MINESWEEPER};
+        return defaultTypes;
+    }
+
     public static char parseCharacterFromInt(int value) {
         return (char) (value + 65);
     }

@@ -1,4 +1,4 @@
-package ai;
+package ai.guessAI;
 
 import com.ships.*;
 
@@ -16,8 +16,8 @@ public class GuessAI {
     private Stack<Coordinate> nextGuesses;
     private AIMode state = AIMode.SCOUT;
 
-    GapChecker gapChecker = new GapChecker();
-    boolean checkerBoardShift = false;
+    private GapChecker gapChecker = new GapChecker();
+    private boolean checkerBoardShift = false;
 
     private int maxEnemyShipLength = 5;
     private int minEnemyShipLength = 2;
@@ -31,9 +31,9 @@ public class GuessAI {
 
     int[][] placementMemory = new int[10][10]; // remember shots of enemy
 
-    public GuessAI(Game game, ArrayList<Module> modules, long decisionDelay) {
+    public GuessAI(ArrayList<Module> modules, long decisionDelay) {
         this.decisionDelay = decisionDelay;
-        this.aiMap = new Battleground(game);
+        this.aiMap = new Battleground();
         this.modules = modules;
         nextGuesses = new Stack<>();
         if(modules.contains(Module.CHECKERBOARD) && !checkerBoardShift) {
@@ -42,7 +42,7 @@ public class GuessAI {
         }
         else
             initAllFields();
-        enemyShips = Util.convertShipList(game.shipList);
+        enemyShips = Util.convertShipList(Util.getDefaultShipTypes());
     }
 
     public Coordinate getNextGuess() {
@@ -110,7 +110,7 @@ public class GuessAI {
             }
         }
 
-        ignoreAdjacentBlockedFields(ship);
+        //ignoreAdjacentBlockedFields(ship);
 
         calculateMinEnemyShipLength();
         calculateMaxEnemyShipLength();
@@ -465,12 +465,10 @@ public class GuessAI {
         String output="AI MAP";
         output+=System.lineSeparator();
         output+=("    A  B  C  D  E  F  G  H  I  J       ");
-        output+=("    A  B  C  D  E  F  G  H  I  J       ");
         output+=System.lineSeparator();
         for (int y = 0; y < aiMap.battleground.length; y++) {
             output+=(Util.padRight(Integer.toString(y), 3));
             for (int x = 0; x < aiMap.battleground[y].length; x++) {
-                // TODO: uncomment this part
                 if (/*!battleground[y][x].equals(FieldState.SHIP) && !aiMap.battleground[y][x].equals(Battleground.FieldState.BLOCKED)*/ true)
                     output+=("[" + aiMap.battleground[y][x].getSymbol() + "]");
                 else
