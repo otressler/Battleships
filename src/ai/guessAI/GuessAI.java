@@ -69,18 +69,7 @@ public class GuessAI {
         }
 
         if(modules.contains(Module.SPACE_ANALYSIS)&&minEnemyShipLength>2){
-            Gap gap = gapChecker.suggest(minEnemyShipLength);
-            Iterator<Coordinate> i = gap.getCoordinates().iterator();
-            Coordinate gapGuess = new Coordinate();
-            boolean foundCoordinate = false;
-            while(i.hasNext() && !foundCoordinate){
-                Coordinate temp = i.next();
-                if(!getFieldState(temp).equals(Battleground.FieldState.IGNORE)){
-                    gapGuess = temp;
-                    foundCoordinate = true;
-                }
-            }
-            return gapGuess;
+            return retrieveGapSuggestion();
         }
 
         if(!Coordinate.validCoordinate(nextGuesses.peek()))
@@ -90,6 +79,21 @@ public class GuessAI {
             nextGuesses.pop();
         aiMap.battleground[nextGuesses.peek().getY()][nextGuesses.peek().getX()] = Battleground.FieldState.IGNORE;
         return nextGuesses.pop();
+    }
+
+    private Coordinate retrieveGapSuggestion(){
+        Gap gap = gapChecker.suggest(minEnemyShipLength);
+        Iterator<Coordinate> i = gap.getCoordinates().iterator();
+        Coordinate gapGuess = new Coordinate();
+        boolean foundCoordinate = false;
+        while(i.hasNext() && !foundCoordinate){
+            Coordinate temp = i.next();
+            if(!getFieldState(temp).equals(Battleground.FieldState.IGNORE)){
+                gapGuess = temp;
+                foundCoordinate = true;
+            }
+        }
+        return gapGuess;
     }
 
     private void initAllFields(){

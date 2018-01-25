@@ -98,23 +98,23 @@ public class Game {
 
     public void guess(int player) {
         if (player == 0 && !humanEnemy) {
-            System.out.println("Turn player " + player);
-            //humanGuess()
-            aiGuess(ai1, ai2);
+            System.out.println("#############################Turn player " + player+"###########################");
             System.out.println("Enemy battleground | Your guesses");
             battlegrounds[1].printBattleground(Battleground.BattlegroundMode.ENEMY);
 
             System.out.println();
             System.out.println("Your battleground | Enemies guesses");
             battlegrounds[0].printBattleground(Battleground.BattlegroundMode.ENEMY);
+
             System.out.println();
             System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
             System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
             System.out.println();
+            aiGuess(ai1, ai2);
         }
+
         else if(player == 0 && humanEnemy){
             System.out.println("Turn player " + player);
-            humanGuess();
             System.out.println("Enemy battleground | Your guesses");
             battlegrounds[1].printBattleground(Battleground.BattlegroundMode.ENEMY);
 
@@ -125,6 +125,7 @@ public class Game {
             System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
             System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
             System.out.println();
+            humanGuess();
         } else {
             aiGuess(ai2, ai1);
             System.out.println("Enemy battleground | Your guesses");
@@ -133,6 +134,10 @@ public class Game {
             System.out.println();
             System.out.println("Your battleground | Enemies guesses");
             battlegrounds[1].printBattleground(Battleground.BattlegroundMode.ENEMY);
+            System.out.println();
+            System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+            System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+            System.out.println();
         }
     }
 

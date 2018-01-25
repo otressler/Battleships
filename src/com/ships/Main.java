@@ -14,7 +14,7 @@ public class Main {
     public static void main(String[] args) {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-        int numberOfGames = 2;//Integer.parseInt(br.readLine());
+        int numberOfGames = 1;//Integer.parseInt(br.readLine());
         ArrayList<GuessAI.Module> modules1 = new ArrayList<>();
         modules1.add(GuessAI.Module.CHECKERBOARD);
         modules1.add(GuessAI.Module.HIT_REACTION);
