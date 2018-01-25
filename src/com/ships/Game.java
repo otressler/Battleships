@@ -14,6 +14,7 @@ public class Game {
     BufferedReader br;
     boolean humanEnemy = false;
     int player;
+    int winner;
     Battleground[] battlegrounds;
     int counter = 0;
     AI ai1;
@@ -59,15 +60,16 @@ public class Game {
                 return false;
         }
         System.out.println("Finished Game. Winner is "+player);
+        winner = player;
         return true;
     }
 
     public void aiGuess(AI activeAI, AI passiveAI){
         Coordinate aiGuess = activeAI.guessAI.getNextGuess();
-        System.out.println("AI guessed " + Util.parseCharacterFromInt(aiGuess.x) + "" + aiGuess.y);
+        System.out.println("AI"+player+" guessed " + Util.parseCharacterFromInt(aiGuess.x) + "" + aiGuess.y);
         passiveAI.placementAI.updateGuessMemory(aiGuess);
         if (battlegrounds[(player + 1) % 2].hitEvaluation(aiGuess)) {
-            System.out.println("AI HIT");
+            System.out.println("AI"+player+" HIT");
             activeAI.guessAI.updatePlacementMemory(aiGuess);
             if (battlegrounds[(player + 1) % 2].battleground[aiGuess.y][aiGuess.x].equals(Battleground.FieldState.SUNK))
                 activeAI.guessAI.onSunk(battlegrounds[(player + 1) % 2].findShipByCoordinate(aiGuess));
@@ -77,11 +79,9 @@ public class Game {
         } else {
             activeAI.guessAI.onMiss(aiGuess.x, aiGuess.y);
         }
-        System.out.println(activeAI.guessAI.toString());
     }
 
     public void humanGuess(){
-        battlegrounds[(player + 1) % 2].printBattleground(Battleground.BattlegroundMode.ENEMY);
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         try {
             String coordinates = br.readLine();
@@ -102,11 +102,11 @@ public class Game {
             //humanGuess()
             aiGuess(ai1, ai2);
             System.out.println("Enemy battleground | Your guesses");
-            battlegrounds[(player + 1) % 2].printBattleground(Battleground.BattlegroundMode.ENEMY);
+            battlegrounds[1].printBattleground(Battleground.BattlegroundMode.ENEMY);
 
             System.out.println();
             System.out.println("Your battleground | Enemies guesses");
-            battlegrounds[player].printBattleground(Battleground.BattlegroundMode.ENEMY);
+            battlegrounds[0].printBattleground(Battleground.BattlegroundMode.ENEMY);
             System.out.println();
             System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
             System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
@@ -115,14 +115,24 @@ public class Game {
         else if(player == 0 && humanEnemy){
             System.out.println("Turn player " + player);
             humanGuess();
+            System.out.println("Enemy battleground | Your guesses");
+            battlegrounds[1].printBattleground(Battleground.BattlegroundMode.ENEMY);
 
-            battlegrounds[(player + 1) % 2].printBattleground(Battleground.BattlegroundMode.ENEMY);
+            System.out.println();
+            System.out.println("Your battleground | Enemies guesses");
+            battlegrounds[0].printBattleground(Battleground.BattlegroundMode.ENEMY);
             System.out.println();
             System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
             System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
             System.out.println();
         } else {
             aiGuess(ai2, ai1);
+            System.out.println("Enemy battleground | Your guesses");
+            battlegrounds[0].printBattleground(Battleground.BattlegroundMode.ENEMY);
+
+            System.out.println();
+            System.out.println("Your battleground | Enemies guesses");
+            battlegrounds[1].printBattleground(Battleground.BattlegroundMode.ENEMY);
         }
     }
 

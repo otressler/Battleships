@@ -35,6 +35,13 @@ public class GuessAI {
         this.decisionDelay = decisionDelay;
         this.aiMap = new Battleground();
         this.modules = modules;
+
+        initGuessStack();
+
+        enemyShips = Util.convertShipList(Util.getDefaultShipTypes());
+    }
+
+    private void initGuessStack(){
         nextGuesses = new Stack<>();
         if(modules.contains(Module.CHECKERBOARD) && !checkerBoardShift) {
             initCheckerboard(false);
@@ -42,7 +49,11 @@ public class GuessAI {
         }
         else
             initAllFields();
-        enemyShips = Util.convertShipList(Util.getDefaultShipTypes());
+    }
+
+    public void resetState(){
+        this.aiMap = new Battleground();
+        initGuessStack();
     }
 
     public Coordinate getNextGuess() {

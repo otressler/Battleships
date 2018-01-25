@@ -20,6 +20,11 @@ public class PlacementAI {
         this.strategy = strategy;
     }
 
+    public void resetState(){
+        bg = new Battleground();
+        ships = new ArrayList<>();
+    }
+
     public Battleground placeShips(ShipType[] shipList) {
         switch (strategy) {
             case SPARSE: // high distance between ships

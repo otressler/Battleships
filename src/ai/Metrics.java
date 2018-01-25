@@ -5,7 +5,6 @@ import java.util.ArrayList;
 public class Metrics {
     private double hitMissRatio, winLoseRation;
     private int overallHits, overallMisses, overallGamesWon, overallGamesLost;
-    private ArrayList<Metrics> history;
 
     public Metrics(){
         hitMissRatio = 0;
@@ -16,8 +15,10 @@ public class Metrics {
 
         overallHits  = 0;
         overallMisses= 0;
+    }
 
-        history = new ArrayList<>();
+    public void updateMetrics(AI ai){
+
     }
 
     public Metrics(int overallHits, int overallMisses, int overallGamesWon, int overallGamesLost) {
@@ -27,7 +28,6 @@ public class Metrics {
         this.winLoseRation = overallGamesWon/overallGamesLost;
         this.overallGamesWon = overallGamesWon;
         this.overallGamesLost = overallGamesLost;
-        history = new ArrayList<>();
     }
 
     public double getHitMissRatio() {
@@ -68,9 +68,5 @@ public class Metrics {
 
     public void increaseOverallMisses(){
         overallMisses++;
-    }
-
-    public void storeMetric(){
-        history.add(this);
     }
 }

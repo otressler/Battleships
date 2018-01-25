@@ -90,7 +90,6 @@ public class Battleground {
     public Ship findShipByCoordinate(Coordinate coordinate){
         for(Ship s : ships){
             for(Coordinate c : s.getCoordinates()){
-                System.out.println(c.x+" "+c.y+"|"+coordinate.x+" "+coordinate.y);
                 if(c.equals(coordinate)){
                     return s;
                 }

@@ -16,6 +16,11 @@ public class AI {
         this.guessAI = new GuessAI(guessModules, decisionDelay);
     }
 
+    public void nextMatch(){
+        placementAI.resetState();
+        guessAI.resetState();
+    }
+
     //default AI
     public AI(Game game) {
         ArrayList<GuessAI.Module> guessModules = new ArrayList<>();
