@@ -2,6 +2,8 @@ package ai;
 
 import com.ships.Coordinate;
 
+import java.util.ArrayList;
+
 public class Gap implements Comparable<Gap>{
     Coordinate start, end;
 
@@ -39,12 +41,7 @@ public class Gap implements Comparable<Gap>{
 
     @Override
     public int compareTo(Gap o) {
-        if(this.length()<o.length())
-            return -1;
-        else if(this.length()==o.length())
-            return 0;
-        else
-            return 1;
+        return Integer.compare(this.length(), o.length());
     }
 
     public Coordinate middle(){
@@ -52,5 +49,19 @@ public class Gap implements Comparable<Gap>{
             return new Coordinate(end.getX()-(length()/2), start.getY());
         else
             return new Coordinate(start.getX(), (end.getY()-length()/2));
+    }
+
+    public ArrayList<Coordinate> getCoordinates(){
+        ArrayList<Coordinate> coordinates = new ArrayList<>();
+        if(start.getY()==end.getY()){
+            for(int i = 0; i < length(); i++){
+                coordinates.add(start.delta(i, 0));
+            }
+        } else{
+            for(int i = 0; i < length(); i++){
+                coordinates.add(start.delta(0, i));
+            }
+        }
+        return coordinates;
     }
 }

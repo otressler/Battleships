@@ -52,7 +52,7 @@ public class GapChecker {
             maxGapLength = verticalGaps.get(0).length();
     }
 
-    public Coordinate suggest(int minShipSize){
+    public Gap suggest(int minShipSize){
         List<Gap> optionsH = horizontalGaps.stream().filter(gap -> gap.length() >= minShipSize).collect(Collectors.toList());
         List<Gap> optionsV = verticalGaps.stream().filter(gap -> gap.length() >= minShipSize).collect(Collectors.toList());
         Iterator<Gap> i;
@@ -62,9 +62,8 @@ public class GapChecker {
             i = optionsV.iterator();
 
         if(i.hasNext()){
-            return i.next().middle();
+            return i.next();
         }
-
-        return new Coordinate(0,0);
+        throw new NoSuchElementException();
     }
 }
