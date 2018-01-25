@@ -11,6 +11,7 @@ public class PlacementAI {
     ArrayList<Ship> ships;
     Battleground bg;
     PositionStrategy strategy;
+    int[][] guessMemory = new int[10][10]; // remember shots of enemy
 
     public PlacementAI(Game game, PositionStrategy strategy) {
         bg = new Battleground(game);
@@ -226,5 +227,9 @@ public class PlacementAI {
             newYPos = random.nextInt(10);
         }
         return new Ship(type, newXPos, newYPos, newVerticalRotation);
+    }
+
+    public void updateGuessMemory(Coordinate coordinate) {
+        guessMemory[coordinate.getY()][coordinate.getX()] += 1;
     }
 }
