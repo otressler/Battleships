@@ -29,6 +29,8 @@ public class GuessAI {
     private int hits = 0;
     private int miss = 0;
 
+    int[][] placementMemory = new int[10][10]; // remember shots of enemy
+
     public GuessAI(Game game, ArrayList<Module> modules, long decisionDelay) {
         this.decisionDelay = decisionDelay;
         this.aiMap = new Battleground(game);
@@ -477,5 +479,10 @@ public class GuessAI {
             output+=System.lineSeparator();
         }
         return output;
+    }
+
+
+    public void updatePlacementMemory(Coordinate coordinate) {
+        placementMemory[coordinate.getY()][coordinate.getX()] += 1;
     }
 }

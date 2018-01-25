@@ -55,6 +55,7 @@ public class Game {
         passiveAI.placementAI.updateGuessMemory(aiGuess);
         if (battlegrounds[(player + 1) % 2].hitEvaluation(aiGuess)) {
             System.out.println("AI HIT");
+            activeAI.guessAI.updatePlacementMemory(aiGuess);
             if (battlegrounds[(player + 1) % 2].battleground[aiGuess.y][aiGuess.x].equals(Battleground.FieldState.SUNK))
                 activeAI.guessAI.onSunk(battlegrounds[(player + 1) % 2].findShipByCoordinate(aiGuess));
             else
