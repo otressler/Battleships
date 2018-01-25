@@ -494,6 +494,9 @@ public class GuessAI {
         return output;
     }
 
+    public Battleground getAiMap() {
+        return aiMap;
+    }
 
     public void updatePlacementMemory(Coordinate coordinate) {
         placementMemory[coordinate.getY()][coordinate.getX()] += 1;
