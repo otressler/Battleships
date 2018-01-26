@@ -4,9 +4,11 @@ import java.util.ArrayList;
 
 public class Metrics {
     private double hitMissRatio, winLoseRation;
-    private int overallHits, overallMisses, overallGamesWon, overallGamesLost;
+    private int gamesPlayed, overallHits, overallMisses, overallGamesWon, overallGamesLost;
 
-    public Metrics(){
+    public Metrics(int gamesToBePlayed){
+        gamesPlayed = gamesToBePlayed;
+
         hitMissRatio = 0;
         winLoseRation= 0;
 
@@ -15,10 +17,6 @@ public class Metrics {
 
         overallHits  = 0;
         overallMisses= 0;
-    }
-
-    public void updateMetrics(AI ai){
-
     }
 
     public Metrics(int overallHits, int overallMisses, int overallGamesWon, int overallGamesLost) {
@@ -31,11 +29,16 @@ public class Metrics {
     }
 
     public double getHitMissRatio() {
-        return overallHits/overallMisses;
+        return ((float)overallHits/(float)gamesPlayed)/((float)overallMisses/(float)gamesPlayed)*100f;
+    }
+
+    public void updateHitsMisses(AI ai){
+        overallHits+=ai.guessAI.getHits();
+        overallMisses+=ai.guessAI.getMisses();
     }
 
     public double getWinLoseRation() {
-        return overallGamesWon/overallGamesLost;
+        return (float)overallGamesWon/(float)overallGamesLost;
     }
 
     public int getOverallHits() {
