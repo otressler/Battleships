@@ -138,11 +138,6 @@ public class GuessAI {
                 return;
             }
         }
-
-        ignoreAdjacentBlockedFields(ship);
-
-        calculateMinEnemyShipLength();
-        calculateMaxEnemyShipLength();
     }
 
     public void onHit(int x, int y) {
@@ -184,6 +179,10 @@ public class GuessAI {
 
     public void onSunk(Ship s) {
         updateActiveShips(s);
+        ignoreAdjacentBlockedFields(s);
+
+        calculateMinEnemyShipLength();
+        calculateMaxEnemyShipLength();
 
         System.out.println("AI has been noticed that the ship has been sunk at "+s.getCoordinates().toString());
         currentDirection = Direction.UNKNOWN;
