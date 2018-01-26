@@ -26,8 +26,9 @@ public class Ship {
                 if (hits == length) {
                     sunk = true;
                     System.out.println("SHIP SUNK " + hits + " " + length);
-                } else
-                    System.out.println("HIT " + hits + " " + length);
+                } else {
+                    //System.out.println("HIT " + hits + " " + length);
+                }
                 return true;
             }
         } else {
@@ -36,8 +37,9 @@ public class Ship {
                 if (hits == length) {
                     sunk = true;
                     System.out.println("SHIP SUNK " + hits + " " + length);
-                } else
-                    System.out.println("HIT " + hits + " " + length);
+                } else {
+                    //System.out.println("HIT " + hits + " " + length);
+                }
                 return true;
             }
         }

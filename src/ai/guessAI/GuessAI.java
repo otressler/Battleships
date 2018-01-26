@@ -1,7 +1,9 @@
 package ai.guessAI;
 
 import com.ships.*;
+import jdk.nashorn.internal.ir.annotations.Ignore;
 
+import java.lang.reflect.Field;
 import java.util.*;
 
 
@@ -17,7 +19,6 @@ public class GuessAI {
     private AIMode state = AIMode.SCOUT;
 
     private GapChecker gapChecker = new GapChecker();
-    private boolean checkerBoardShift = false;
 
     private int maxEnemyShipLength = 5;
     private int minEnemyShipLength = 2;
@@ -43,9 +44,8 @@ public class GuessAI {
 
     private void initGuessStack(){
         nextGuesses = new Stack<>();
-        if(modules.contains(Module.CHECKERBOARD) && !checkerBoardShift) {
+        if(modules.contains(Module.CHECKERBOARD)) {
             initCheckerboard(false);
-            checkerBoardShift = true;
         }
         else
             initAllFields();
@@ -53,6 +53,17 @@ public class GuessAI {
 
     public void resetState(){
         this.aiMap = new Battleground();
+        this.nextGuesses = new Stack<>();
+        this.state = AIMode.SCOUT;
+        miss = 0;
+        hits = 0;
+        maxEnemyShipLength = 5;
+        minEnemyShipLength = 2;
+
+        currentDirection = Direction.UNKNOWN;
+
+        gapChecker = new GapChecker();
+
         initGuessStack();
     }
 
@@ -64,20 +75,25 @@ public class GuessAI {
             e.printStackTrace();
         }
 
-        if(modules.contains(Module.CHECKERBOARD) && nextGuesses.empty() & checkerBoardShift){
-            initCheckerboard(true);
+        if(modules.contains(Module.CHECKERBOARD) && nextGuesses.empty()){
+            //initCheckerboard(true);
         }
 
         if(modules.contains(Module.SPACE_ANALYSIS)&&minEnemyShipLength>2){
             return retrieveGapSuggestion();
         }
 
-        if(!Coordinate.validCoordinate(nextGuesses.peek()))
+        if(!Coordinate.validCoordinate(nextGuesses.peek())) {
+            System.out.println("Popping due to invalid coordinate "+nextGuesses.peek().toString());
             nextGuesses.pop();
+        }
 
-        while(aiMap.battleground[nextGuesses.peek().getY()][nextGuesses.peek().getX()].equals(Battleground.FieldState.IGNORE))
+        while(aiMap.battleground[nextGuesses.peek().getY()][nextGuesses.peek().getX()].equals(Battleground.FieldState.IGNORE)) {
+            System.out.println("Popping due to IGNORE coordinate "+nextGuesses.peek().toString());
             nextGuesses.pop();
+        }
         aiMap.battleground[nextGuesses.peek().getY()][nextGuesses.peek().getX()] = Battleground.FieldState.IGNORE;
+        System.out.println("Popping due to AI Guess");
         return nextGuesses.pop();
     }
 
@@ -108,7 +124,7 @@ public class GuessAI {
 
     private void initCheckerboard(boolean shift) {
         for (int y = 0; y < 10; y++) {
-            for (int x = (y + Boolean.compare(shift, false)) % 2; x < 10; x += 2) {
+            for (int x = (y) % 2; x < 10; x += 2) {
                 nextGuesses.push(new Coordinate(x, y));
                 aiMap.battleground[y][x] = Battleground.FieldState.POTENTIAL;
             }
@@ -125,7 +141,7 @@ public class GuessAI {
             }
         }
 
-        //ignoreAdjacentBlockedFields(ship);
+        ignoreAdjacentBlockedFields(ship);
 
         calculateMinEnemyShipLength();
         calculateMaxEnemyShipLength();
@@ -180,36 +196,39 @@ public class GuessAI {
     private void hitDuringScout(int x, int y) {
         stateChange(AIMode.ATTACK_ADJACENT);
         // TODO: Check for irrelevant fields in switch statement
-        for (int i = 0; i < 4; i++) {
-            Integer[] options = {0, 1, 2, 3};
-            List<Integer> choices = Arrays.asList(options);
-            Collections.shuffle(choices);
-            initialHit = new Coordinate(x, y);
-            for (Integer choice : choices) {
-                switch (choice) {
-                    case 0:
-                        if (x + 1 < 10) {
-                            nextGuesses.push(new Coordinate(x + 1, y));
-                        }
-                        break;
-                    case 1:
-                        if (x - 1 >= 0) {
-                            nextGuesses.push(new Coordinate(x - 1, y));
-                        }
-                        break;
-                    case 2:
-                        if (y + 1 < 10) {
-                            nextGuesses.push(new Coordinate(x, y + 1));
-                        }
-                        break;
-                    case 3:
-                        if (y - 1 >= 0) {
-                            nextGuesses.push(new Coordinate(x, y - 1));
-                        }
-                        break;
-                    default:
-                        System.out.println("Illegal number generated");
-                }
+        Integer[] options = {0, 1, 2, 3};
+        List<Integer> choices = Arrays.asList(options);
+        Collections.shuffle(choices);
+        initialHit = new Coordinate(x, y);
+        for (Integer choice : choices) {
+            switch (choice) {
+                case 0:
+                    // TODO: Replace with valid Coordinate
+                    if (x + 1 < 10) {
+                        nextGuesses.push(new Coordinate(x + 1, y));
+                    } else
+                        miss ++;
+                    break;
+                case 1:
+                    if (x - 1 >= 0) {
+                        nextGuesses.push(new Coordinate(x - 1, y));
+                    } else
+                        miss ++;
+                    break;
+                case 2:
+                    if (y + 1 < 10) {
+                        nextGuesses.push(new Coordinate(x, y + 1));
+                    } else
+                        miss ++;
+                    break;
+                case 3:
+                    if (y - 1 >= 0) {
+                        nextGuesses.push(new Coordinate(x, y - 1));
+                    } else
+                        miss ++;
+                    break;
+                default:
+                    System.out.println("Illegal number generated");
             }
         }
     }
@@ -229,13 +248,16 @@ public class GuessAI {
      * @param y Y position of the follow up hit
      */
     private void hitDuringAttackAdjacent(int x, int y) {
+        // Remove adjacentFieldsFromStack
+        // TODO: Install options counter
+        for (int i = 0; i < 3 - miss; i++) {
+            System.out.println("Popping adjacentField "+nextGuesses.peek().toString());
+            nextGuesses.pop();
+        }
+
         // Hit right from initialHit
         if (x > initialHit.getX()) {
             currentDirection = Direction.RIGHT;
-
-            // Remove adjacentFieldsFromStack
-            for (int i = 0; i < 3 - miss; i++)
-                nextGuesses.pop();
 
             // Check if already at border
             if (x + 1 > 9) {
@@ -249,11 +271,6 @@ public class GuessAI {
         // Hit left from initialHit
         else if (x < initialHit.getX()) {
             currentDirection = Direction.LEFT;
-
-            // Remove adjacentFieldsFromStack
-            for (int i = 0; i < 3 - miss; i++)
-                nextGuesses.pop();
-
             // Check if already at border
             if (x - 1 < 0) {
                 currentDirection = Direction.RIGHT;
@@ -266,10 +283,6 @@ public class GuessAI {
         else if (y > initialHit.getY()) {
             currentDirection = Direction.DOWN;
 
-            // Remove adjacentFieldsFromStack
-            for (int i = 0; i < 3 - miss; i++)
-                nextGuesses.pop();
-
             // Check if already at border
             if (y + 1 > 9) {
                 currentDirection = Direction.UP;
@@ -280,9 +293,6 @@ public class GuessAI {
         // Hit above initialHit
         else if (y < initialHit.getY()) {
             currentDirection = Direction.UP;
-            // Remove adjacentFieldsFromStack
-            for (int i = 0; i < 3 - miss; i++)
-                nextGuesses.pop();
 
             // Check if already at border
             if (y - 1 < 0) {
@@ -291,8 +301,7 @@ public class GuessAI {
             } else
                 nextGuesses.push(new Coordinate(x, y - 1));
         }
-
-        hits++;
+        miss = 0;
         stateChange(AIMode.ATTACK);
     }
 
@@ -310,25 +319,25 @@ public class GuessAI {
         aiMap.battleground[y][x] = Battleground.FieldState.IGNORE;
         switch (currentDirection) {
             case UP:
-                if(Coordinate.validCoordinate(x, y))
+                if(Coordinate.validCoordinate(x, y-1) && !getFieldState(new Coordinate(x, y-1)).equals(Battleground.FieldState.IGNORE))
                     nextGuesses.push(new Coordinate(x, y - 1));
                 else
                     directionSwitch();
                 break;
             case DOWN:
-                if(Coordinate.validCoordinate(x, y))
+                if(Coordinate.validCoordinate(x, y+1) && !getFieldState(new Coordinate(x, y+1)).equals(Battleground.FieldState.IGNORE))
                     nextGuesses.push(new Coordinate(x, y + 1));
                 else
                     directionSwitch();
                 break;
             case LEFT:
-                if(Coordinate.validCoordinate(x, y))
+                if(Coordinate.validCoordinate(x -1, y) && !getFieldState(new Coordinate(x-1, y)).equals(Battleground.FieldState.IGNORE))
                     nextGuesses.push(new Coordinate(x - 1, y));
                 else
                     directionSwitch();
                 break;
             case RIGHT:
-                if(Coordinate.validCoordinate(x, y))
+                if(Coordinate.validCoordinate(x +1, y) && !getFieldState(new Coordinate(x+1, y)).equals(Battleground.FieldState.IGNORE))
                     nextGuesses.push(new Coordinate(x + 1, y));
                 else
                     directionSwitch();
@@ -367,7 +376,9 @@ public class GuessAI {
     }
 
     private void stateChange(AIMode destinationState) {
-        System.out.println("AI Mode set to " + destinationState.name());
+        System.out.print("AI Mode set to " + destinationState.name());
+        if(destinationState.equals(AIMode.ATTACK))
+            System.out.println(" "+currentDirection.name());
         state = destinationState;
     }
 
@@ -465,11 +476,11 @@ public class GuessAI {
         IGNORE_BLOCKED,
         SPACE_ANALYSIS,
         MEMORY
-        }
+    }
 
     public enum Direction {
         LEFT, RIGHT, UP, DOWN, UNKNOWN
-        }
+    }
 
     public enum AIMode {
         SCOUT, ATTACK, ATTACK_ADJACENT
