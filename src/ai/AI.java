@@ -12,13 +12,8 @@ public class AI {
     private Game game;
 
     public AI(PlacementAI.PositionStrategy placementStrategy, ArrayList<GuessAI.Module> guessModules, int decisionDelay) {
-        this.placementAI = new PlacementAI(placementStrategy);
+        this.placementAI = new PlacementAI(placementStrategy, 10);
         this.guessAI = new GuessAI(guessModules, decisionDelay);
-    }
-
-    public void nextMatch(){
-        placementAI.resetState();
-        guessAI.resetState();
     }
 
     //default AI
@@ -27,7 +22,12 @@ public class AI {
         guessModules.add(GuessAI.Module.CHECKERBOARD);
         guessModules.add(GuessAI.Module.HIT_REACTION);
 
-        this.placementAI = new PlacementAI(PlacementAI.PositionStrategy.RANDOM);
+        this.placementAI = new PlacementAI(PlacementAI.PositionStrategy.RANDOM, 10);
         this.guessAI = new GuessAI(guessModules, 0);
+    }
+
+    public void nextMatch() {
+        placementAI.resetState();
+        guessAI.resetState();
     }
 }

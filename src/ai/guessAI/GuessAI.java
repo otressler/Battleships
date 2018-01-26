@@ -7,29 +7,22 @@ import java.util.*;
 
 // TODO: Checkerboard only results in empty stack
 public class GuessAI {
+    int[][] placementMemory = new int[10][10]; // remember shots of enemy
     private ArrayList<Module> modules;
     private ArrayList<ShipType> enemyShips;
-
     private long decisionDelay;
-
     private Battleground aiMap;
     private Stack<Coordinate> nextGuesses;
     private AIMode state = AIMode.SCOUT;
-
     private GapChecker gapChecker = new GapChecker();
-
     private int maxEnemyShipLength = 5;
     private int minEnemyShipLength = 2;
-
     // The following fields are used to determine the orientation of the enemy ship during ATTACK_ADJACENT
     private Coordinate initialHit;
     private Direction currentDirection = Direction.UNKNOWN;
-
     private int hits = 0;
     private int misses;
     private int adjacentMisses = 0;
-
-    int[][] placementMemory = new int[10][10]; // remember shots of enemy
 
     public GuessAI(ArrayList<Module> modules, long decisionDelay) {
         this.decisionDelay = decisionDelay;
@@ -41,17 +34,16 @@ public class GuessAI {
         enemyShips = Util.convertShipList(Util.getDefaultShipTypes());
     }
 
-    private void initGuessStack(){
+    private void initGuessStack() {
         nextGuesses = new Stack<>();
-        if(modules.contains(Module.CHECKERBOARD)) {
-            initCheckerboard(false);
-        }
-        else
+        if (modules.contains(Module.CHECKERBOARD)) {
+            initCheckerboard();
+        } else
             initAllFields();
         // If modules contains memory -> put matrix on stock sorted top to bottom
     }
 
-    public void resetState(){
+    public void resetState() {
         this.aiMap = new Battleground();
         this.nextGuesses = new Stack<>();
         this.state = AIMode.SCOUT;
@@ -75,46 +67,27 @@ public class GuessAI {
             e.printStackTrace();
         }
 
-        if(modules.contains(Module.CHECKERBOARD) && nextGuesses.empty()){
+        if (modules.contains(Module.CHECKERBOARD) && nextGuesses.empty()) {
             //initCheckerboard(true);
         }
 
-        if(modules.contains(Module.SPACE_ANALYSIS)&&minEnemyShipLength>2){
-            return retrieveGapSuggestion();
-        }
-
-        if(!Coordinate.validCoordinate(nextGuesses.peek())) {
-            System.out.println("Popping due to invalid coordinate "+nextGuesses.peek().toString());
+        if (!Coordinate.validCoordinate(nextGuesses.peek())) {
+            System.out.println("Popping due to invalid coordinate " + nextGuesses.peek().toString());
             nextGuesses.pop();
         }
 
-        while(aiMap.battleground[nextGuesses.peek().getY()][nextGuesses.peek().getX()].equals(Battleground.FieldState.IGNORE)) {
-            System.out.println("Popping due to IGNORE coordinate "+nextGuesses.peek().toString());
+        while (aiMap.battleground[nextGuesses.peek().getY()][nextGuesses.peek().getX()].equals(Battleground.FieldState.IGNORE)) {
+            System.out.println("Popping due to IGNORE coordinate " + nextGuesses.peek().toString());
             nextGuesses.pop();
         }
-        aiMap.battleground[nextGuesses.peek().getY()][nextGuesses.peek().getX()] = Battleground.FieldState.IGNORE;
+        setIgnore(nextGuesses.peek());
         System.out.println("Popping due to AI Guess");
         return nextGuesses.pop();
     }
 
-    private Coordinate retrieveGapSuggestion(){
-        Gap gap = gapChecker.suggest(minEnemyShipLength);
-        Iterator<Coordinate> i = gap.getCoordinates().iterator();
-        Coordinate gapGuess = new Coordinate();
-        boolean foundCoordinate = false;
-        while(i.hasNext() && !foundCoordinate){
-            Coordinate temp = i.next();
-            if(!getFieldState(temp).equals(Battleground.FieldState.IGNORE)){
-                gapGuess = temp;
-                foundCoordinate = true;
-            }
-        }
-        return gapGuess;
-    }
-
-    private void initAllFields(){
+    private void initAllFields() {
         for (int y = 0; y < 10; y++) {
-            for (int x = 0; x < 10; x ++) {
+            for (int x = 0; x < 10; x++) {
                 nextGuesses.push(new Coordinate(x, y));
                 aiMap.battleground[y][x] = Battleground.FieldState.POTENTIAL;
             }
@@ -122,7 +95,7 @@ public class GuessAI {
         Collections.shuffle(nextGuesses);
     }
 
-    private void initCheckerboard(boolean shift) {
+    private void initCheckerboard() {
         for (int y = 0; y < 10; y++) {
             for (int x = (y) % 2; x < 10; x += 2) {
                 nextGuesses.push(new Coordinate(x, y));
@@ -132,9 +105,9 @@ public class GuessAI {
         Collections.shuffle(nextGuesses);
     }
 
-    private void updateActiveShips(Ship ship){
-        for(Iterator<ShipType> i = enemyShips.iterator(); i.hasNext();){
-            if(i.next().getLength() == ship.length){
+    private void updateActiveShips(Ship ship) {
+        for (Iterator<ShipType> i = enemyShips.iterator(); i.hasNext(); ) {
+            if (i.next().getLength() == ship.length) {
                 i.remove();
                 return;
             }
@@ -142,7 +115,7 @@ public class GuessAI {
     }
 
     public void onHit(int x, int y) {
-        if(modules.contains(Module.HIT_REACTION)) {
+        if (modules.contains(Module.HIT_REACTION)) {
             if (state.equals(AIMode.SCOUT)) {
                 hitDuringScout(x, y);
             } else if (state.equals(AIMode.ATTACK_ADJACENT)) {
@@ -185,7 +158,7 @@ public class GuessAI {
         calculateMinEnemyShipLength();
         calculateMaxEnemyShipLength();
 
-        System.out.println("AI has been noticed that the ship has been sunk at "+s.getCoordinates().toString());
+        System.out.println("AI has been noticed that the ship has been sunk at " + s.getCoordinates().toString());
         currentDirection = Direction.UNKNOWN;
         stateChange(AIMode.SCOUT);
     }
@@ -231,7 +204,7 @@ public class GuessAI {
     }
 
     private void missDuringScout(int x, int y) {
-        aiMap.battleground[y][x] = Battleground.FieldState.IGNORE;
+
     }
 
     /**
@@ -248,7 +221,7 @@ public class GuessAI {
         // Remove adjacentFieldsFromStack
         // TODO: Install options counter
         for (int i = 0; i < 3 - adjacentMisses; i++) {
-            System.out.println("Popping adjacentField "+nextGuesses.peek().toString());
+            System.out.println("Popping adjacentField " + nextGuesses.peek().toString());
             nextGuesses.pop();
         }
 
@@ -257,7 +230,7 @@ public class GuessAI {
             currentDirection = Direction.RIGHT;
 
             // Check if already at border
-            if (x + 1 > 9 || (Coordinate.validCoordinate(x+1, y) && getFieldState(new Coordinate(x+1, y)).equals(Battleground.FieldState.IGNORE))) {
+            if (x + 1 > 9 || (Coordinate.validCoordinate(x + 1, y) && getFieldState(new Coordinate(x + 1, y)).equals(Battleground.FieldState.IGNORE))) {
                 currentDirection = Direction.LEFT;
                 nextGuesses.push(new Coordinate(initialHit.getX() - 1, initialHit.getY()));
             } else
@@ -268,7 +241,7 @@ public class GuessAI {
         else if (x < initialHit.getX()) {
             currentDirection = Direction.LEFT;
             // Check if already at border
-            if (x - 1 < 0 || (Coordinate.validCoordinate(x-1, y) && getFieldState(new Coordinate(x-1, y)).equals(Battleground.FieldState.IGNORE))) {
+            if (x - 1 < 0 || (Coordinate.validCoordinate(x - 1, y) && getFieldState(new Coordinate(x - 1, y)).equals(Battleground.FieldState.IGNORE))) {
                 currentDirection = Direction.RIGHT;
                 nextGuesses.push(new Coordinate(initialHit.getX() + 1, initialHit.getY()));
             } else
@@ -280,7 +253,7 @@ public class GuessAI {
             currentDirection = Direction.DOWN;
 
             // Check if already at border
-            if (y + 1 > 9 || (Coordinate.validCoordinate(x, y+1) && getFieldState(new Coordinate(x, y+1)).equals(Battleground.FieldState.IGNORE))) {
+            if (y + 1 > 9 || (Coordinate.validCoordinate(x, y + 1) && getFieldState(new Coordinate(x, y + 1)).equals(Battleground.FieldState.IGNORE))) {
                 currentDirection = Direction.UP;
                 nextGuesses.push(new Coordinate(initialHit.getX(), initialHit.getY() - 1));
             } else
@@ -291,7 +264,7 @@ public class GuessAI {
             currentDirection = Direction.UP;
 
             // Check if already at border
-            if (y - 1 < 0 || (Coordinate.validCoordinate(x, y-1) && getFieldState(new Coordinate(x, y-1)).equals(Battleground.FieldState.IGNORE))) {
+            if (y - 1 < 0 || (Coordinate.validCoordinate(x, y - 1) && getFieldState(new Coordinate(x, y - 1)).equals(Battleground.FieldState.IGNORE))) {
                 currentDirection = Direction.DOWN;
                 nextGuesses.push(new Coordinate(initialHit.getX(), initialHit.getY() + 1));
             } else
@@ -312,28 +285,27 @@ public class GuessAI {
      * @param y Y-Coord of attacked field
      */
     private void hitDuringAttack(int x, int y) {
-        aiMap.battleground[y][x] = Battleground.FieldState.IGNORE;
         switch (currentDirection) {
             case UP:
-                if(Coordinate.validCoordinate(x, y-1) && !getFieldState(new Coordinate(x, y-1)).equals(Battleground.FieldState.IGNORE))
+                if (Coordinate.validCoordinate(x, y - 1) && !getFieldState(new Coordinate(x, y - 1)).equals(Battleground.FieldState.IGNORE))
                     nextGuesses.push(new Coordinate(x, y - 1));
                 else
                     directionSwitch();
                 break;
             case DOWN:
-                if(Coordinate.validCoordinate(x, y+1) && !getFieldState(new Coordinate(x, y+1)).equals(Battleground.FieldState.IGNORE))
+                if (Coordinate.validCoordinate(x, y + 1) && !getFieldState(new Coordinate(x, y + 1)).equals(Battleground.FieldState.IGNORE))
                     nextGuesses.push(new Coordinate(x, y + 1));
                 else
                     directionSwitch();
                 break;
             case LEFT:
-                if(Coordinate.validCoordinate(x -1, y) && !getFieldState(new Coordinate(x-1, y)).equals(Battleground.FieldState.IGNORE))
+                if (Coordinate.validCoordinate(x - 1, y) && !getFieldState(new Coordinate(x - 1, y)).equals(Battleground.FieldState.IGNORE))
                     nextGuesses.push(new Coordinate(x - 1, y));
                 else
                     directionSwitch();
                 break;
             case RIGHT:
-                if(Coordinate.validCoordinate(x +1, y) && !getFieldState(new Coordinate(x+1, y)).equals(Battleground.FieldState.IGNORE))
+                if (Coordinate.validCoordinate(x + 1, y) && !getFieldState(new Coordinate(x + 1, y)).equals(Battleground.FieldState.IGNORE))
                     nextGuesses.push(new Coordinate(x + 1, y));
                 else
                     directionSwitch();
@@ -344,11 +316,10 @@ public class GuessAI {
     }
 
     private void missDuringAttack(int x, int y) {
-        aiMap.battleground[y][x] = Battleground.FieldState.IGNORE;
         directionSwitch();
     }
 
-    private void directionSwitch(){
+    private void directionSwitch() {
         System.out.println("Switching direction");
         switch (currentDirection) {
             case UP:
@@ -374,33 +345,27 @@ public class GuessAI {
 
     private void stateChange(AIMode destinationState) {
         System.out.print("AI Mode set to " + destinationState.name());
-        if(destinationState.equals(AIMode.ATTACK))
-            System.out.println(" "+currentDirection.name());
+        if (destinationState.equals(AIMode.ATTACK))
+            System.out.println(" " + currentDirection.name());
         state = destinationState;
     }
 
-    private void ignoreAdjacentBlockedFields(Ship ship){
-        if(modules.contains(Module.IGNORE_BLOCKED)) {
+    private void ignoreAdjacentBlockedFields(Ship ship) {
+        if (modules.contains(Module.IGNORE_BLOCKED)) {
 
             if (currentDirection.equals(Direction.UP) || currentDirection.equals(Direction.DOWN)) {
                 // Block field over the ship
-                if (Coordinate.validCoordinate(new Coordinate(ship.xPos, ship.yPos -1))) {
-                    setIgnore(new Coordinate(ship.xPos, ship.yPos -1));
+                if (Coordinate.validCoordinate(new Coordinate(ship.xPos, ship.yPos - 1))) {
+                    setIgnore(new Coordinate(ship.xPos, ship.yPos - 1));
                 }
                 // Block fields below the ship
-                if (Coordinate.validCoordinate(new Coordinate(ship.xPos, ship.yPos+ship.length))) {
-                    setIgnore(new Coordinate(ship.xPos, ship.yPos+ship.length));
-                }
-                // Block fields covered by the ship
-                for (int i = 0; i < ship.length; i++) {
-                    if (Coordinate.validCoordinate(new Coordinate(ship.xPos, ship.yPos + i))) {
-                        setIgnore(new Coordinate(ship.xPos, ship.yPos + i));
-                    }
+                if (Coordinate.validCoordinate(new Coordinate(ship.xPos, ship.yPos + ship.length))) {
+                    setIgnore(new Coordinate(ship.xPos, ship.yPos + ship.length));
                 }
                 // Block fields left from the ship
                 for (int i = 0; i < ship.length; i++) {
-                    if (Coordinate.validCoordinate(new Coordinate(ship.xPos-1, ship.yPos+i))) {
-                        setIgnore(new Coordinate(ship.xPos-1, ship.yPos+i));
+                    if (Coordinate.validCoordinate(new Coordinate(ship.xPos - 1, ship.yPos + i))) {
+                        setIgnore(new Coordinate(ship.xPos - 1, ship.yPos + i));
                     }
                 }
 
@@ -413,18 +378,12 @@ public class GuessAI {
 
             } else {
                 // Block fields left from the ship
-                if (Coordinate.validCoordinate(new Coordinate(ship.xPos -1, ship.yPos))) {
-                    setIgnore(new Coordinate(ship.xPos -1, ship.yPos));
+                if (Coordinate.validCoordinate(new Coordinate(ship.xPos - 1, ship.yPos))) {
+                    setIgnore(new Coordinate(ship.xPos - 1, ship.yPos));
                 }
                 // Block fields right from the ship
-                if (Coordinate.validCoordinate(new Coordinate(ship.xPos+ship.length, ship.yPos))) {
-                    setIgnore(new Coordinate(ship.xPos+ship.length, ship.yPos));
-                }
-                // Block fields covered by the ship
-                for (int i = 0; i < ship.length; i++) {
-                    if (Coordinate.validCoordinate(new Coordinate(ship.xPos + i, ship.yPos))) {
-                        setIgnore(new Coordinate(ship.xPos + i, ship.yPos));
-                    }
+                if (Coordinate.validCoordinate(new Coordinate(ship.xPos + ship.length, ship.yPos))) {
+                    setIgnore(new Coordinate(ship.xPos + ship.length, ship.yPos));
                 }
                 // Block field over the ship
                 for (int i = 0; i < ship.length; i++) {
@@ -444,34 +403,43 @@ public class GuessAI {
         }
     }
 
-    private void calculateMaxEnemyShipLength(){
+    private void calculateMaxEnemyShipLength() {
         int tempMax = 0;
-        for(ShipType type : enemyShips){
-            if(type.getLength() > tempMax){
+        for (ShipType type : enemyShips) {
+            if (type.getLength() > tempMax) {
                 tempMax = type.getLength();
             }
         }
-        if(tempMax<maxEnemyShipLength)
+        if (tempMax < maxEnemyShipLength)
             maxEnemyShipLength = tempMax;
     }
 
     private void calculateMinEnemyShipLength() {
         int tempMin = 5;
-        for(ShipType type : enemyShips){
-            if(type.getLength() < tempMin){
+        for (ShipType type : enemyShips) {
+            if (type.getLength() < tempMin) {
                 tempMin = type.getLength();
             }
         }
-        if(tempMin>minEnemyShipLength)
+        if (tempMin > minEnemyShipLength)
             minEnemyShipLength = tempMin;
     }
 
-    private void setIgnore(Coordinate c){
+    private void setIgnore(Coordinate c) {
         aiMap.battleground[c.getY()][c.getX()] = Battleground.FieldState.IGNORE;
-        //gapChecker.splitGaps(c);
+        if (modules.contains(Module.SPACE_ANALYSIS)) {
+            gapChecker.splitGaps(c);
+            if(minEnemyShipLength>2)
+                ignoreTooShortGaps();
+        }
     }
 
-    private Battleground.FieldState getFieldState(Coordinate c){
+    private void ignoreTooShortGaps() {
+        List<Coordinate> gaps = gapChecker.ignoreTooShortGaps(minEnemyShipLength);
+        gaps.forEach(coordinate -> aiMap.battleground[coordinate.getY()][coordinate.getX()] = Battleground.FieldState.IGNORE);
+    }
+
+    private Battleground.FieldState getFieldState(Coordinate c) {
         return aiMap.battleground[c.getY()][c.getX()];
     }
 
@@ -479,8 +447,34 @@ public class GuessAI {
         return hits;
     }
 
-    public int getMisses(){
+    public int getMisses() {
         return misses;
+    }
+
+    public String toString() {
+        String output = "AI MAP";
+        output += System.lineSeparator();
+        output += ("    A  B  C  D  E  F  G  H  I  J       ");
+        output += System.lineSeparator();
+        for (int y = 0; y < aiMap.battleground.length; y++) {
+            output += (Util.padRight(Integer.toString(y), 3));
+            for (int x = 0; x < aiMap.battleground[y].length; x++) {
+                if (/*!battleground[y][x].equals(FieldState.SHIP) && !aiMap.battleground[y][x].equals(Battleground.FieldState.BLOCKED)*/ true)
+                    output += ("[" + aiMap.battleground[y][x].getSymbol() + "]");
+                else
+                    output += ("[ ]");
+            }
+            output += System.lineSeparator();
+        }
+        return output;
+    }
+
+    public Battleground getAiMap() {
+        return aiMap;
+    }
+
+    public void updatePlacementMemory(Coordinate coordinate) {
+        placementMemory[coordinate.getY()][coordinate.getX()] += 1;
     }
 
     public enum Module {
@@ -498,31 +492,5 @@ public class GuessAI {
     public enum AIMode {
         SCOUT, ATTACK, ATTACK_ADJACENT
 
-    }
-
-    public String toString(){
-        String output="AI MAP";
-        output+=System.lineSeparator();
-        output+=("    A  B  C  D  E  F  G  H  I  J       ");
-        output+=System.lineSeparator();
-        for (int y = 0; y < aiMap.battleground.length; y++) {
-            output+=(Util.padRight(Integer.toString(y), 3));
-            for (int x = 0; x < aiMap.battleground[y].length; x++) {
-                if (/*!battleground[y][x].equals(FieldState.SHIP) && !aiMap.battleground[y][x].equals(Battleground.FieldState.BLOCKED)*/ true)
-                    output+=("[" + aiMap.battleground[y][x].getSymbol() + "]");
-                else
-                    output+=("[ ]");
-            }
-            output+=System.lineSeparator();
-        }
-        return output;
-    }
-
-    public Battleground getAiMap() {
-        return aiMap;
-    }
-
-    public void updatePlacementMemory(Coordinate coordinate) {
-        placementMemory[coordinate.getY()][coordinate.getX()] += 1;
     }
 }

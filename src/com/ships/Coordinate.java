@@ -1,6 +1,6 @@
 package com.ships;
 
-public class Coordinate {
+public class Coordinate implements Comparable<Coordinate> {
     int x, y;
 
     public Coordinate(int x, int y) {
@@ -8,7 +8,16 @@ public class Coordinate {
         this.y = y;
     }
 
-    public Coordinate(){}
+    public Coordinate() {
+    }
+
+    public static boolean validCoordinate(Coordinate c) {
+        return c.getX() >= 0 && c.getX() <= 9 && c.getY() >= 0 && c.getY() <= 9;
+    }
+
+    public static boolean validCoordinate(int x, int y) {
+        return x >= 0 && x <= 9 && y >= 0 && y <= 9;
+    }
 
     public int getX() {
         return x;
@@ -22,31 +31,32 @@ public class Coordinate {
         return new Coordinate(x + deltaX, y + deltaY);
     }
 
-    public static boolean validCoordinate(Coordinate c){
-        if(c.getX() < 0 || c.getX() > 9 || c.getY() < 0 || c.getY() > 9){
-            return false;
-        }
-        else{
-            return true;
+    public String toString() {
+        return x + "|" + y;
+    }
+
+    public boolean equals(Coordinate c) {
+        return c.x == this.x && c.y == this.y;
+    }
+
+    @Override
+    public int compareTo(Coordinate o) {
+        if (this.y < o.y) {
+            return -1;
+        } else if (this.y > o.y) {
+            return 1;
+        } else {
+            if (this.x < o.x) {
+                return -1;
+            } else if (this.x > o.x) {
+                return 1;
+            } else {
+                return 0;
+            }
         }
     }
 
-    public String toString(){
-        return x+"|"+y;
-    }
-
-    public boolean equals(Coordinate c){
-        if(c.x == this.x && c.y == this.y)
-            return true;
-        else
-            return false;
-    }
-
-    public static boolean validCoordinate(int x, int y){
-        if(x < 0 || x > 9 || y < 0 || y > 9){
-            return false;
-        } else{
-            return true;
-        }
+    public int hashCode(){
+        return x + 10*y;
     }
 }

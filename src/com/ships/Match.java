@@ -7,7 +7,7 @@ import java.util.EmptyStackException;
 
 public class Match {
 
-    public Match(int numberOfGames, AI ai1, AI ai2){
+    public Match(int numberOfGames, AI ai1, AI ai2) {
         Metrics ai1Metrics = new Metrics(numberOfGames);
         Metrics ai2Metrics = new Metrics(numberOfGames);
         for (int i = 0; i < numberOfGames; i++) {
@@ -17,17 +17,17 @@ public class Match {
                 e.printStackTrace();
             }
             Game g = new Game(ai1, ai2);
-            try{
+            try {
                 g.init();
-            }catch (EmptyStackException e){
+            } catch (EmptyStackException e) {
                 ai1.nextMatch();
                 ai2.nextMatch();
                 continue;
             }
-            if(g.winner==0){
+            if (g.winner == 0) {
                 ai1Metrics.increaseGamesWon();
                 ai2Metrics.increaseGamesLost();
-            } else{
+            } else {
                 ai2Metrics.increaseGamesWon();
                 ai1Metrics.increaseGamesLost();
             }
@@ -45,7 +45,7 @@ public class Match {
         System.out.println(ai2Metrics.toString());
     }
 
-    public Match(int numberOfGames, AI ai){
+    public Match(int numberOfGames, AI ai) {
         for (int i = 0; i < numberOfGames; i++) {
             new Game(ai);
             ai.nextMatch();

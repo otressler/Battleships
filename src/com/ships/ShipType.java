@@ -8,6 +8,7 @@ public enum ShipType {
 
     private String className;
     private int length;
+
     ShipType(String className, int length) {
         this.className = className;
         this.length = length;
@@ -17,5 +18,7 @@ public enum ShipType {
         return className;
     }
 
-    public int getLength() { return length; }
+    public int getLength() {
+        return length;
+    }
 }

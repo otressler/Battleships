@@ -12,7 +12,7 @@ public class Battleground {
     /**
      * ONLY USE FOR AI
      */
-    public Battleground(){
+    public Battleground() {
         this.battleground = new FieldState[10][10];
         for (int y = 0; y < battleground.length; y++) {
             for (int x = 0; x < battleground[y].length; x++) {
@@ -87,10 +87,10 @@ public class Battleground {
         return false;
     }
 
-    public Ship findShipByCoordinate(Coordinate coordinate){
-        for(Ship s : ships){
-            for(Coordinate c : s.getCoordinates()){
-                if(c.equals(coordinate)){
+    public Ship findShipByCoordinate(Coordinate coordinate) {
+        for (Ship s : ships) {
+            for (Coordinate c : s.getCoordinates()) {
+                if (c.equals(coordinate)) {
                     return s;
                 }
             }

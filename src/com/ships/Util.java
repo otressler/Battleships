@@ -23,17 +23,16 @@ public class Util {
         return Character.toLowerCase(coordinates.charAt(2)) == 'v';
     }
 
-    public static ArrayList<ShipType> convertShipList(ShipType[] array){
+    public static ArrayList<ShipType> convertShipList(ShipType[] array) {
         ArrayList<ShipType> temp = new ArrayList<>();
-        for(ShipType st : array){
+        for (ShipType st : array) {
             temp.add(st);
         }
         return temp;
     }
 
-    public static ShipType[] getDefaultShipTypes(){
-        ShipType[] defaultTypes = {ShipType.BATTLESHIP, ShipType.CRUISER, ShipType.FRIGATE, ShipType.FRIGATE, ShipType.MINESWEEPER};
-        return defaultTypes;
+    public static ShipType[] getDefaultShipTypes() {
+        return new ShipType[]{ShipType.BATTLESHIP, ShipType.CRUISER, ShipType.FRIGATE, ShipType.FRIGATE, ShipType.MINESWEEPER};
     }
 
     public static char parseCharacterFromInt(int value) {

@@ -1,6 +1,9 @@
 package ai;
 
-import com.ships.*;
+import com.ships.Battleground;
+import com.ships.Coordinate;
+import com.ships.Ship;
+import com.ships.ShipType;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -8,20 +11,20 @@ import java.util.Random;
 import static java.lang.Integer.min;
 
 public class PlacementAI {
-    ArrayList<Ship> ships;
-    Battleground bg;
-    PositionStrategy strategy;
+    int tries;
+    private ArrayList<Ship> ships;
+    private Battleground bg;
+    private PositionStrategy strategy;
+    private int[][] guessMemory = new int[10][10]; // remember shots of enemy
 
-    int[][] guessMemory = new int[10][10]; // remember shots of enemy
-
-    public PlacementAI(PositionStrategy strategy) {
+    public PlacementAI(PositionStrategy strategy, int patience) {
         bg = new Battleground();
         ships = new ArrayList<>();
         this.strategy = strategy;
-
+        this.tries = patience;
     }
 
-    public void resetState(){
+    public void resetState() {
         bg = new Battleground();
         ships = new ArrayList<>();
     }
@@ -48,7 +51,7 @@ public class PlacementAI {
         distanceMatrix = calculateDistanceMatrix(bg.ships.get(0));
 
         for (int i = 1; i < shipList.length; i++) {
-            bg.placeShip(suggestDensePlacement(distanceMatrix, shipList[i], 100));
+            bg.placeShip(suggestDensePlacement(distanceMatrix, shipList[i], tries));
 
             // TODO : Have a look at mergeMatrices for refreshDistanceMatrix. Currently this does not come up with good results for dense placement
             //distanceMatrix = refreshDistanceMatrix(bg.ships.get(i), distanceMatrix);
@@ -85,7 +88,7 @@ public class PlacementAI {
         return bestShip;
     }
 
-    public Battleground placeRandomly(ShipType[] shipList) {
+    private Battleground placeRandomly(ShipType[] shipList) {
         Ship tempShip;
         for (ShipType type : shipList) {
             do {
@@ -99,14 +102,14 @@ public class PlacementAI {
         return bg;
     }
 
-    public Battleground placeSparse(ShipType[] shipList) {
+    private Battleground placeSparse(ShipType[] shipList) {
         int[][] distanceMatrix;
 
         bg.placeShip(suggestRandomPlacement(shipList[0]));
         distanceMatrix = calculateDistanceMatrix(bg.ships.get(0));
 
         for (int i = 1; i < shipList.length; i++) {
-            bg.placeShip(suggestSparsePlacement(distanceMatrix, shipList[i], 100));
+            bg.placeShip(suggestSparsePlacement(distanceMatrix, shipList[i], tries));
 
             distanceMatrix = refreshDistanceMatrix(bg.ships.get(i), distanceMatrix);
         }
@@ -114,7 +117,7 @@ public class PlacementAI {
         return bg;
     }
 
-    public Ship suggestSparsePlacement(int[][] distanceMatrix, ShipType shipType, int tries) {
+    private Ship suggestSparsePlacement(int[][] distanceMatrix, ShipType shipType, int tries) {
         int bestScore = -1;
         Ship bestShip = new Ship(ShipType.MINESWEEPER, -1, -1, true);
         for (int i = 0; i < tries; i++) {
@@ -147,13 +150,13 @@ public class PlacementAI {
         bg.placeShip(suggestRandomPlacement(shipList[0]));
 
         for (int i = 1; i < shipList.length; i++) {
-            bg.placeShip(suggestMemoryPlacement(shipList[i], 100));
+            bg.placeShip(suggestMemoryPlacement(shipList[i], tries));
         }
 
         return bg;
     }
 
-    public Ship suggestMemoryPlacement(ShipType shipType, int tries) {
+    private Ship suggestMemoryPlacement(ShipType shipType, int tries) {
         int bestScore = -1;
         Ship bestShip = new Ship(ShipType.MINESWEEPER, -1, -1, true);
         for (int i = 0; i < tries; i++) {
@@ -179,10 +182,6 @@ public class PlacementAI {
         }
 
         return bestShip;
-    }
-
-    public enum PositionStrategy {
-        SPARSE, DENSE, RANDOM, MEMORY
     }
 
     private int[][] calculateDistanceMatrix(Ship s) {
@@ -279,5 +278,9 @@ public class PlacementAI {
 
     public void updateGuessMemory(Coordinate coordinate) {
         guessMemory[coordinate.getY()][coordinate.getX()] += 1;
+    }
+
+    public enum PositionStrategy {
+        SPARSE, DENSE, RANDOM, MEMORY
     }
 }

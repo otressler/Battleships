@@ -1,27 +1,24 @@
 package com.ships;
 
 import ai.AI;
-import ai.guessAI.GuessAI;
-import ai.PlacementAI;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.EmptyStackException;
 
 public class Game {
-    public final ShipType[] shipList = {ShipType.BATTLESHIP, ShipType.CRUISER, ShipType.FRIGATE, ShipType.FRIGATE, ShipType.MINESWEEPER};
-    BufferedReader br;
-    boolean humanEnemy = false;
-    int player;
+    private final ShipType[] shipList = {ShipType.BATTLESHIP, ShipType.CRUISER, ShipType.FRIGATE, ShipType.FRIGATE, ShipType.MINESWEEPER};
     int winner;
-    Battleground[] battlegrounds;
-    int counter = 0;
-    AI ai1;
-    AI ai2;
+    private BufferedReader br;
+    private boolean humanEnemy = false;
+    private int player;
+    private Battleground[] battlegrounds;
+    private int counter = 0;
+    private AI ai1;
+    private AI ai2;
 
-    public Game(AI ai){
+    public Game(AI ai) {
         humanEnemy = true;
         player = 0;
         battlegrounds = new Battleground[2];
@@ -47,7 +44,7 @@ public class Game {
         this.ai2 = ai2;
     }
 
-    public void init() throws EmptyStackException{
+    public void init() throws EmptyStackException {
         placementPhase(0);
         placementPhase(1);
         System.out.println("Now entering game phase: ");
@@ -58,7 +55,7 @@ public class Game {
     }
 
     private boolean winCondition(int player) {
-        if(player == 1){
+        if (player == 1) {
             for (Ship s : battlegrounds[0].ships) {
                 if (!s.sunk)
                     return false;
@@ -75,18 +72,17 @@ public class Game {
     }
 
 
-    public void aiGuess(){
+    private void aiGuess() {
         AI activeAI;
         AI passiveAI;
-        if(humanEnemy){
+        if (humanEnemy) {
             activeAI = getCurrentPlayer() == 0 ? null : ai2;
             passiveAI = getCurrentPlayer() == 0 ? ai2 : null;
-        }
-        else {
+        } else {
             activeAI = player == 0 ? ai1 : ai2;
             passiveAI = player == 0 ? ai2 : ai1;
         }
-        System.out.println("#############################  Turn player " + player+"  ###########################");
+        System.out.println("#############################  Turn player " + player + "  ###########################");
         printBattlegrounds(Battleground.BattlegroundMode.ENEMY);
         System.out.println();
         System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
@@ -95,12 +91,12 @@ public class Game {
 
         //TODO: Fix active AI wrong
         Coordinate aiGuess = activeAI.guessAI.getNextGuess();
-        System.out.println("AI"+player+" guessed " + Util.parseCharacterFromInt(aiGuess.x) + "" + aiGuess.y);
-        if(passiveAI!=null) {
+        System.out.println("AI" + player + " guessed " + Util.parseCharacterFromInt(aiGuess.x) + "" + aiGuess.y);
+        if (passiveAI != null) {
             passiveAI.placementAI.updateGuessMemory(aiGuess);
         }
         if (battlegrounds[(player + 1) % 2].hitEvaluation(aiGuess)) {
-            System.out.println("AI"+player+" HIT");
+            System.out.println("AI" + player + " HIT");
             activeAI.guessAI.updatePlacementMemory(aiGuess);
             if (battlegrounds[(player + 1) % 2].battleground[aiGuess.y][aiGuess.x].equals(Battleground.FieldState.SUNK))
                 activeAI.guessAI.onSunk(battlegrounds[(player + 1) % 2].findShipByCoordinate(aiGuess));
@@ -112,8 +108,8 @@ public class Game {
         }
     }
 
-    public void humanGuess(){
-        System.out.println("#############################  Turn player " + player+"  ###########################");
+    private void humanGuess() {
+        System.out.println("#############################  Turn player " + player + "  ###########################");
         printBattlegrounds(Battleground.BattlegroundMode.ENEMY);
         System.out.println();
         System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
@@ -133,8 +129,8 @@ public class Game {
         }
     }
 
-    public void guess(int player) {
-        if(!winCondition(player)) {
+    private void guess(int player) {
+        if (!winCondition(player)) {
             if (player == 0 && !humanEnemy) {
                 aiGuess();
             } else if (player == 0 && humanEnemy) {
@@ -145,13 +141,13 @@ public class Game {
         }
     }
 
-    public void round() {
+    private void round() {
         guess(0);
-        if(winCondition(0))
+        if (winCondition(0))
             return;
         player++;
         guess(1);
-        if(winCondition(1))
+        if (winCondition(1))
             return;
         player--;
         counter++;
@@ -160,7 +156,7 @@ public class Game {
     public void placementPhase(int player) {
         if (player == 0 && !humanEnemy) {
             battlegrounds[player] = ai1.placementAI.placeShips(shipList);
-        } else if(player == 0 && humanEnemy){
+        } else if (player == 0 && humanEnemy) {
             for (ShipType type : shipList)
                 requestHumanPlacement(type);
         } else {
@@ -191,12 +187,12 @@ public class Game {
         printBattlegrounds(Battleground.BattlegroundMode.PLACEMENT);
     }
 
-    public void printBattlegrounds(Battleground.BattlegroundMode mode) {
+    private void printBattlegrounds(Battleground.BattlegroundMode mode) {
         AI activeAI;
-        if(humanEnemy){
+        if (humanEnemy) {
             activeAI = ai2;
-        } else{
-            activeAI = getCurrentPlayer() == 0? ai1:ai2;
+        } else {
+            activeAI = getCurrentPlayer() == 0 ? ai1 : ai2;
         }
         // rightPlayer : player
         // leftPlayer : enemy
@@ -243,7 +239,7 @@ public class Game {
 
                 System.out.print("      ||      ");
                 System.out.print(Util.padRight(Integer.toString(y), 3));
-                if(activeAI != null) {
+                if (activeAI != null) {
                     for (int x = 0; x < activeAI.guessAI.getAiMap().battleground[y].length; x++) {
                         if (/*!battleground[y][x].equals(FieldState.SHIP) && !aiMap.battleground[y][x].equals(Battleground.FieldState.BLOCKED)*/ true)
                             System.out.print(" " + activeAI.guessAI.getAiMap().battleground[y][x].getSymbol() + " ");
@@ -256,17 +252,19 @@ public class Game {
         }
     }
 
-    public int getCurrentPlayer() {
+    private int getCurrentPlayer() {
         return player;
     }
 
-    public int getRounds(){
+    public int getRounds() {
         return counter;
     }
 
-    public int getCurrentEnemy() {return (player+1) % 2;}
+    private int getCurrentEnemy() {
+        return (player + 1) % 2;
+    }
 
-    public Battleground[] getBattlegrounds() {
+    private Battleground[] getBattlegrounds() {
         return battlegrounds;
     }
 }

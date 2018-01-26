@@ -3,12 +3,12 @@ package com.ships;
 import java.util.ArrayList;
 
 public class Ship {
-    ShipType type;
     public int xPos;
     public int yPos;
+    public int length;
+    ShipType type;
     boolean verticalRotation;
     int hits;
-    public int length;
     boolean sunk;
 
     public Ship(ShipType type, int xPos, int yPos, boolean verticalRotation) {
@@ -37,8 +37,6 @@ public class Ship {
                 if (hits == length) {
                     sunk = true;
                     System.out.println("SHIP SUNK " + hits + " " + length);
-                } else {
-                    //System.out.println("HIT " + hits + " " + length);
                 }
                 return true;
             }
