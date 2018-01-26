@@ -40,7 +40,18 @@ public class GuessAI {
             initCheckerboard();
         } else
             initAllFields();
-        // If modules contains memory -> put matrix on stock sorted top to bottom
+
+        /*if(modules.contains(Module.MEMORY)) {
+            int[][] tempPlacementMemory = placementMemory;
+            Arrays.sort(tempPlacementMemory,
+                    new Comparator<int[]>() {
+                        public int compare(int[] a1, int[] a2) {
+                            //return Integer.compare(a1[1], a2[1]); // Ascending
+                            return Integer.compare(a2[1], a1[1]); // Descending
+                        }
+                    }
+            );
+        }*/
     }
 
     public void resetState() {
