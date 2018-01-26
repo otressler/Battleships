@@ -31,16 +31,18 @@ public class Match {
                 ai2Metrics.increaseGamesWon();
                 ai1Metrics.increaseGamesLost();
             }
+
+            ai1Metrics.updateAverageRoundsPlayed(g.getRounds());
+            ai2Metrics.updateAverageRoundsPlayed(g.getRounds());
+
             ai1Metrics.updateHitsMisses(ai1);
             ai2Metrics.updateHitsMisses(ai2);
+
             ai1.nextMatch();
             ai2.nextMatch();
         }
-        System.out.println("ai1Metrics.getWinLoseRation() = " + ai1Metrics.getWinLoseRation());
-        System.out.println("ai1Metrics.getHitMissRatio() = " + ai1Metrics.getHitMissRatio());
-
-        System.out.println("ai2Metrics.getWinLoseRation() = " + ai2Metrics.getWinLoseRation());
-        System.out.println("ai2Metrics.getHitMissRatio() = " + ai2Metrics.getHitMissRatio());
+        System.out.println(ai1Metrics.toString());
+        System.out.println(ai2Metrics.toString());
     }
 
     public Match(int numberOfGames, AI ai){

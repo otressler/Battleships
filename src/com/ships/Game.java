@@ -260,6 +260,10 @@ public class Game {
         return player;
     }
 
+    public int getRounds(){
+        return counter;
+    }
+
     public int getCurrentEnemy() {return (player+1) % 2;}
 
     public Battleground[] getBattlegrounds() {
