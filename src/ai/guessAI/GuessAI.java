@@ -48,6 +48,7 @@ public class GuessAI {
         }
         else
             initAllFields();
+        // If modules contains memory -> put matrix on stock sorted top to bottom
     }
 
     public void resetState(){
