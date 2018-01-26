@@ -23,6 +23,7 @@ public class Main {
 
         ArrayList<GuessAI.Module> modules2 = new ArrayList<>();
         modules2.add(GuessAI.Module.CHECKERBOARD);
+        //modules2.add(GuessAI.Module.MEMORY);
         modules2.add(GuessAI.Module.HIT_REACTION);
         modules2.add(GuessAI.Module.IGNORE_BLOCKED);
         new Match(numberOfGames,
