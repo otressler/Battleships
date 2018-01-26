@@ -18,6 +18,7 @@ public class PlacementAI {
         bg = new Battleground();
         ships = new ArrayList<>();
         this.strategy = strategy;
+
     }
 
     public void resetState(){
@@ -33,6 +34,8 @@ public class PlacementAI {
                 return placeDense(shipList);
             case RANDOM: // random distance between ships
                 return placeRandomly(shipList);
+            case MEMORY:
+                return placeMemory(shipList);
             default:
                 return placeRandomly(shipList);
         }
@@ -139,8 +142,47 @@ public class PlacementAI {
         return bestShip;
     }
 
+    private Battleground placeMemory(ShipType[] shipList) {
+
+        bg.placeShip(suggestRandomPlacement(shipList[0]));
+
+        for (int i = 1; i < shipList.length; i++) {
+            bg.placeShip(suggestMemoryPlacement(shipList[i], 100));
+        }
+
+        return bg;
+    }
+
+    public Ship suggestMemoryPlacement(ShipType shipType, int tries) {
+        int bestScore = -1;
+        Ship bestShip = new Ship(ShipType.MINESWEEPER, -1, -1, true);
+        for (int i = 0; i < tries; i++) {
+            Ship temp;
+            do {
+                temp = suggestRandomPlacement(shipType);
+            } while (bg.checkForBlockedFields(temp));
+
+            int tempScore = 0;
+            for (Coordinate coordinate : temp.getCoordinates()) {
+                tempScore += guessMemory[coordinate.getY()][coordinate.getX()];
+            }
+
+            if (bestScore < 0) {
+                bestShip = temp;
+                bestScore = tempScore;
+            } else {
+                if (tempScore < bestScore) {
+                    bestShip = temp;
+                    bestScore = tempScore;
+                }
+            }
+        }
+
+        return bestShip;
+    }
+
     public enum PositionStrategy {
-        SPARSE, DENSE, RANDOM
+        SPARSE, DENSE, RANDOM, MEMORY
     }
 
     private int[][] calculateDistanceMatrix(Ship s) {

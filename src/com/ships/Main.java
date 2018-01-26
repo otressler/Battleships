@@ -26,8 +26,8 @@ public class Main {
         modules2.add(GuessAI.Module.HIT_REACTION);
         modules2.add(GuessAI.Module.IGNORE_BLOCKED);
         new Match(numberOfGames,
-                //new AI(PlacementAI.PositionStrategy.RANDOM, modules1, 0),
-                new AI(PlacementAI.PositionStrategy.RANDOM, modules2, 0)
+                new AI(PlacementAI.PositionStrategy.RANDOM, modules1, 0),
+                new AI(PlacementAI.PositionStrategy.MEMORY, modules2, 0)
         );
 
     }
