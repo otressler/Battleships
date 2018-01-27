@@ -85,9 +85,6 @@ public class Game {
         System.out.println("#############################  Turn player " + player + "  ###########################");
         printBattlegrounds(Battleground.BattlegroundMode.ENEMY);
         System.out.println();
-        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-        System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-        System.out.println();
 
         //TODO: Fix active AI wrong
         Coordinate aiGuess = activeAI.guessAI.getNextGuess();
@@ -188,6 +185,7 @@ public class Game {
     }
 
     private void printBattlegrounds(Battleground.BattlegroundMode mode) {
+
         AI activeAI;
         if (humanEnemy) {
             activeAI = ai2;
@@ -221,7 +219,7 @@ public class Game {
                 System.out.print(Util.padRight(Integer.toString(y), 3));
                 for (int x = 0; x < battlegrounds[getCurrentEnemy()].battleground[y].length; x++) {
                     // TODO: uncomment this part
-                    if (/*!battlegrounds[getCurrentEnemy()].battleground[y][x].equals(Battleground.FieldState.SHIP) && */!battlegrounds[getCurrentEnemy()].battleground[y][x].equals(Battleground.FieldState.BLOCKED))
+                    if (!battlegrounds[getCurrentEnemy()].battleground[y][x].equals(Battleground.FieldState.SHIP) && !battlegrounds[getCurrentEnemy()].battleground[y][x].equals(Battleground.FieldState.BLOCKED))
                         System.out.print("[" + battlegrounds[getCurrentEnemy()].battleground[y][x].getSymbol() + "]");
                     else
                         System.out.print("[ ]");
@@ -241,15 +239,13 @@ public class Game {
                 System.out.print(Util.padRight(Integer.toString(y), 3));
                 if (activeAI != null) {
                     for (int x = 0; x < activeAI.guessAI.getAiMap().battleground[y].length; x++) {
-                        if (/*!battleground[y][x].equals(FieldState.SHIP) && !aiMap.battleground[y][x].equals(Battleground.FieldState.BLOCKED)*/ true)
-                            System.out.print(" " + activeAI.guessAI.getAiMap().battleground[y][x].getSymbol() + " ");
-                        else
-                            System.out.print("   ");
+                        System.out.print(" " + activeAI.guessAI.getAiMap().battleground[y][x].getSymbol() + " ");
                     }
                 }
                 System.out.println();
             }
         }
+
     }
 
     private int getCurrentPlayer() {

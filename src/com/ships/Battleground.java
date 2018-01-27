@@ -34,36 +34,6 @@ public class Battleground {
         ships = new ArrayList<>(5);
     }
 
-    public void printBattleground(BattlegroundMode mode) {
-        if (mode.equals(BattlegroundMode.PLACEMENT)) {
-            System.out.println("Placement");
-            System.out.println();
-            System.out.println("    A  B  C  D  E  F  G  H  I  J");
-            for (int y = 0; y < battleground.length; y++) {
-                System.out.print(Util.padRight(Integer.toString(y), 3));
-                for (int x = 0; x < battleground[y].length; x++) {
-                    System.out.print("[" + battleground[y][x].getSymbol() + "]");
-                }
-                System.out.println();
-            }
-        } else if (mode.equals(BattlegroundMode.ENEMY)) {
-            System.out.println();
-            System.out.print("    A  B  C  D  E  F  G  H  I  J       ");
-            System.out.println();
-            for (int y = 0; y < battleground.length; y++) {
-                System.out.print(Util.padRight(Integer.toString(y), 3));
-                for (int x = 0; x < battleground[y].length; x++) {
-                    // TODO: uncomment this part
-                    if (!battleground[y][x].equals(FieldState.SHIP) && !battleground[y][x].equals(FieldState.BLOCKED))
-                        System.out.print("[" + battleground[y][x].getSymbol() + "]");
-                    else
-                        System.out.print("[ ]");
-                }
-                System.out.println();
-            }
-        }
-    }
-
     public boolean placeShip(Ship ship) {
         if (ship.verticalRotation) {
             if (ship.xPos >= 0 && ship.xPos < 10 && ship.yPos >= 0 && ship.yPos + ship.length - 1 < 10 && !checkForBlockedFields(ship)) {
@@ -205,7 +175,7 @@ public class Battleground {
 
     public enum FieldState {
         IGNORE("I"),
-        POTENTIAL("P"),
+        POTENTIAL(" "),
         HIT("X"),
         MISS("-"),
         SUNK("#"),

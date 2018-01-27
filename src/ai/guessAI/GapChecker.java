@@ -2,23 +2,31 @@ package ai.guessAI;
 
 import com.ships.Coordinate;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class GapChecker {
     private ArrayList<Gap> horizontalGaps, verticalGaps;
     private int maxGapLength;
+    private ArrayList<Coordinate> splits;
 
     public GapChecker() {
         horizontalGaps = new ArrayList<>();
         verticalGaps = new ArrayList<>();
+        splits = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             horizontalGaps.add(new Gap(new Coordinate(0, i), new Coordinate(9, i)));
             verticalGaps.add(new Gap(new Coordinate(i, 0), new Coordinate(i, 9)));
         }
     }
 
-    public void splitGaps(Coordinate split) {
+    public void splitGaps(Coordinate split){
+        splitGapsInternal(split);
+    }
+
+    public void splitGapsInternal(Coordinate split) {
+        splits.add(split);
         Gap gapUp = new Gap();
         Gap gapDown = new Gap();
         Gap gapLeft = new Gap();
@@ -26,19 +34,21 @@ public class GapChecker {
         for (Iterator<Gap> i = horizontalGaps.iterator(); i.hasNext(); ) {
             Gap gap = i.next();
             if (gap.withinGap(split)) {
-                gapLeft = new Gap(gap.start, split.delta(-1, 0));
-                gapRight = new Gap(split.delta(1, 0), gap.end);
+                if(!gap.isStartpoint(split))
+                    gapLeft = new Gap(gap.start, split.delta(-1, 0));
+                if(!gap.isEndpoint(split))
+                    gapRight = new Gap(split.delta(1, 0), gap.end);
                 i.remove();
-                break;
             }
         }
         for (Iterator<Gap> i = verticalGaps.iterator(); i.hasNext(); ) {
             Gap gap = i.next();
             if (gap.withinGap(split)) {
-                gapUp = new Gap(gap.start, split.delta(0, -1));
-                gapDown = new Gap(split.delta(0, 1), gap.end);
+                if(!gap.isStartpoint(split))
+                    gapUp = new Gap(gap.start, split.delta(0, -1));
+                if(!gap.isEndpoint(split))
+                    gapDown = new Gap(split.delta(0, 1), gap.end);
                 i.remove();
-                break;
             }
         }
         if (Coordinate.validCoordinate(split.delta(-1, 0)) && !(gapLeft.start == null || gapLeft.length() <= 0))
@@ -56,6 +66,38 @@ public class GapChecker {
         verticalGaps.sort(Comparator.reverseOrder());
         if (verticalGaps.get(0).length() > maxGapLength)
             maxGapLength = verticalGaps.get(0).length();
+    }
+
+    private void updateExistingGaps(){
+        for(Coordinate c : getAllOverlappingCoordinates()){
+            splitGaps(c);
+        }
+    }
+
+    private Coordinate getOverlap(Gap g1, Gap g2){
+        for(Coordinate c1 : g1.getCoordinates()){
+            for(Coordinate c2 : g2.getCoordinates()){
+                if(c1.equals(c2)){
+                    return c1;
+                }
+            }
+        }
+        return null;
+    }
+
+    public ArrayList<Coordinate> getAllOverlappingCoordinates(){
+        ArrayList<Coordinate> overlappingCoordinates = new ArrayList<>();
+        List<Gap> horizontal = horizontalGaps.stream().filter(gap -> gap.length() < 10).collect(Collectors.toList());
+        List<Gap> vertical = verticalGaps.stream().filter(gap -> gap.length() < 10).collect(Collectors.toList());
+        for(Gap hG : horizontal){
+            for(Gap vG : vertical){
+                Coordinate overlap = getOverlap(hG, vG);
+                if(overlap != null){
+                    overlappingCoordinates.add(overlap);
+                }
+            }
+        }
+        return overlappingCoordinates;
     }
 
     public Gap suggest(int minShipSize) {
@@ -96,9 +138,33 @@ public class GapChecker {
     }
 
     public String toString() {
-        String horizontal = horizontalGaps.stream().filter(gap -> gap.length() < 10).collect(Collectors.toList()).toString();
-        String vertical = verticalGaps.stream().filter(gap -> gap.length() < 10).collect(Collectors.toList()).toString();
-        return "H: " + horizontal + System.lineSeparator() + "V: " + vertical + " maxLength = " + maxGapLength;
+        List<Gap> horizontal = horizontalGaps.stream().filter(gap -> gap.length() < 10).collect(Collectors.toList());
+        List<Gap> vertical = verticalGaps.stream().filter(gap -> gap.length() < 10).collect(Collectors.toList());
+        String [][] output = new String[10][10];
+        for(int y = 0; y < 10; y++){
+            for(int x = 0; x < 10; x++){
+                output[y][x]="[ ]";
+            }
+        }
+        for(Gap hG : horizontal){
+            for(Coordinate hC : hG.getCoordinates()){
+                output[hC.getY()][hC.getX()] = "[-]";
+            }
+        }
+        for(Gap vG : vertical){
+            for(Coordinate vC : vG.getCoordinates()){
+                output[vC.getY()][vC.getX()] = "[I]";
+            }
+        }
+
+        String out = "H: " + horizontal + System.lineSeparator() + "V: " + vertical + " maxLength = " + maxGapLength + System.lineSeparator();
+        for(int y = 0; y < 10; y++){
+            for(int x = 0; x < 10; x++){
+                out+=output[y][x];
+            }
+            out+=System.lineSeparator();
+        }
+        return out;
     }
 
     private Gap sortGap(Gap gap) {
