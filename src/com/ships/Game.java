@@ -27,8 +27,6 @@ public class Game {
         battlegrounds[1] = new Battleground(this);
         this.ai2 = ai;
         verbose = true;
-        placementPhase(0);
-        placementPhase(1);
     }
 
     public Game(AI ai1, AI ai2) {
@@ -118,17 +116,29 @@ public class Game {
         printBattlegrounds(Battleground.BattlegroundMode.ENEMY);
         System.out.println();
         System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+        System.out.println("@@@@@@@@@@@@@@@@@@@@@ Enter a coordinate (e.g. A0) @@@@@@@@@@@@@@@@@@@@@");
         System.out.println("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
         System.out.println();
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         try {
-            String coordinates = br.readLine();
+            String coordinates = "";
+            do {
+                coordinates = br.readLine();
+            }
+            while (coordinates.length() < 2 || !Coordinate.validCoordinate(Util.parseXPosition(coordinates), Util.parseYPosition(coordinates)));
+            System.out.println("________________________________________________________________________");
+            System.out.println();
             int x = Util.parseXPosition(coordinates);
             int y = Util.parseYPosition(coordinates);
             Coordinate guess = new Coordinate(x, y);
             ai2.placementAI.updateGuessMemory(guess);
-            if (battlegrounds[(player + 1) % 2].hitEvaluation(guess))
+            if (battlegrounds[(player + 1) % 2].hitEvaluation(guess)) {
+                printBattlegrounds(Battleground.BattlegroundMode.ENEMY);
                 guess(player);
+            } else {
+                printBattlegrounds(Battleground.BattlegroundMode.ENEMY);
+            }
+
         } catch (IOException io) {
             io.printStackTrace();
         }
@@ -179,7 +189,8 @@ public class Game {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        } while (
+        } while (coordinates.length() < 3 ||
+                !Coordinate.validCoordinate(Util.parseXPosition(coordinates), Util.parseYPosition(coordinates)) ||
                 !battlegrounds[player].placeShip(
                         new Ship(
                                 type,
@@ -215,42 +226,46 @@ public class Game {
                     System.out.println();
                 }
             } else if (mode.equals(Battleground.BattlegroundMode.ENEMY)) {
-                System.out.print("Your guesses on the enemies board      ");
-                System.out.print("Enemies guesses on your board          ");
-                System.out.print("        Active AI map                          ");
-                System.out.println();
-                System.out.print("    A  B  C  D  E  F  G  H  I  J       ");
-                System.out.print("    A  B  C  D  E  F  G  H  I  J       ");
-                System.out.print("            A  B  C  D  E  F  G  H  I  J       ");
-                System.out.println();
-                for (int y = 0; y < battlegrounds[getCurrentEnemy()].battleground.length; y++) {
-                    System.out.print(Util.padRight(Integer.toString(y), 3));
-                    for (int x = 0; x < battlegrounds[getCurrentEnemy()].battleground[y].length; x++) {
-                        // TODO: uncomment this part
-                        if (!battlegrounds[getCurrentEnemy()].battleground[y][x].equals(Battleground.FieldState.SHIP) && !battlegrounds[getCurrentEnemy()].battleground[y][x].equals(Battleground.FieldState.BLOCKED))
-                            System.out.print("[" + battlegrounds[getCurrentEnemy()].battleground[y][x].getSymbol() + "]");
-                        else
-                            System.out.print("[ ]");
-                    }
-
-
-                    System.out.print("      ");
-                    System.out.print(Util.padRight(Integer.toString(y), 3));
-                    for (int x = 0; x < battlegrounds[getCurrentPlayer()].battleground[y].length; x++) {
-                        if (!getBattlegrounds()[getCurrentPlayer()].battleground[y][x].equals(Battleground.FieldState.BLOCKED))
-                            System.out.print("[" + getBattlegrounds()[getCurrentPlayer()].battleground[y][x].getSymbol() + "]");
-                        else
-                            System.out.print("[ ]");
-                    }
-
-                    System.out.print("      ||      ");
-                    System.out.print(Util.padRight(Integer.toString(y), 3));
-                    if (activeAI != null) {
-                        for (int x = 0; x < activeAI.guessAI.getAiMap().battleground[y].length; x++) {
-                            System.out.print(" " + activeAI.guessAI.getAiMap().battleground[y][x].getSymbol() + " ");
-                        }
-                    }
+                if (!humanEnemy || player == 0) {
+                    System.out.print("Your guesses on the enemies board      ");
+                    System.out.print("Enemies guesses on your board          ");
+                    System.out.print("        Active AI map                          ");
                     System.out.println();
+                    System.out.print("    A  B  C  D  E  F  G  H  I  J       ");
+                    System.out.print("    A  B  C  D  E  F  G  H  I  J       ");
+                    System.out.print("            A  B  C  D  E  F  G  H  I  J       ");
+                    System.out.println();
+                    for (int y = 0; y < battlegrounds[getCurrentEnemy()].battleground.length; y++) {
+                        System.out.print(Util.padRight(Integer.toString(y), 3));
+                        for (int x = 0; x < battlegrounds[getCurrentEnemy()].battleground[y].length; x++) {
+                            // TODO: uncomment this part
+                            if (!battlegrounds[getCurrentEnemy()].battleground[y][x].equals(Battleground.FieldState.SHIP) && !battlegrounds[getCurrentEnemy()].battleground[y][x].equals(Battleground.FieldState.BLOCKED))
+                                System.out.print("[" + battlegrounds[getCurrentEnemy()].battleground[y][x].getSymbol() + "]");
+                            else
+                                System.out.print("[ ]");
+                        }
+
+                        if (!humanEnemy || player == 0) {
+                            System.out.print("      ");
+                            System.out.print(Util.padRight(Integer.toString(y), 3));
+                            for (int x = 0; x < battlegrounds[getCurrentPlayer()].battleground[y].length && (!humanEnemy || player == 0); x++) {
+                                if (!getBattlegrounds()[getCurrentPlayer()].battleground[y][x].equals(Battleground.FieldState.BLOCKED))
+                                    System.out.print("[" + getBattlegrounds()[getCurrentPlayer()].battleground[y][x].getSymbol() + "]");
+                                else
+                                    System.out.print("[ ]");
+                            }
+                        }
+                        if (!humanEnemy || player == 0) {
+                            System.out.print("      ||      ");
+                            System.out.print(Util.padRight(Integer.toString(y), 3));
+                            if (activeAI != null) {
+                                for (int x = 0; x < activeAI.guessAI.getAiMap().battleground[y].length; x++) {
+                                    System.out.print(" " + activeAI.guessAI.getAiMap().battleground[y][x].getSymbol() + " ");
+                                }
+                            }
+                        }
+                        System.out.println();
+                    }
                 }
             }
         }

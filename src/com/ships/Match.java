@@ -4,7 +4,6 @@ import ai.AI;
 import ai.Metrics;
 
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.EmptyStackException;
 
@@ -62,7 +61,7 @@ public class Match {
 
     public Match(int numberOfGames, AI ai) {
         for (int i = 0; i < numberOfGames; i++) {
-            new Game(ai);
+            new Game(ai).init();
             ai.nextMatch();
         }
     }

@@ -25,16 +25,24 @@ public class PlacementAnalysis {
         for (int i = oldDenseValues.size() - 1; i >= 0 & i > oldDenseValues.size() - slidingWindow; i--) {
             avgValue += (oldDenseValues.get(i));
         }
-        if(Math.min(oldDenseValues.size(), slidingWindow)>0)
+        if (Math.min(oldDenseValues.size(), slidingWindow) > 0)
             avgValue /= Math.min(oldDenseValues.size(), slidingWindow);
         else
             avgValue /= 1;
-        if (avgValue < 30) {
+        if (avgValue < 40) {
             return PlacementAI.PositionStrategy.DENSE;
         } else if (avgValue > 45) {
             return PlacementAI.PositionStrategy.SPARSE;
         } else {
             return PlacementAI.PositionStrategy.RANDOM;
+        }
+    }
+
+    public boolean validSuggestion() {
+        if (slidingWindow > oldDenseValues.size()) {
+            return false;
+        } else {
+            return true;
         }
     }
 

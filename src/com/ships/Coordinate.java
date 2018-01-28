@@ -39,6 +39,12 @@ public class Coordinate implements Comparable<Coordinate> {
         return c.x == this.x && c.y == this.y;
     }
 
+    public double euclideanDistance(Coordinate c) {
+        int deltaX = (this.x - c.getX()) * (this.x - c.getX());
+        int deltaY = (this.y - c.getY()) * (this.x - c.getX());
+        return Math.sqrt(deltaX + deltaY);
+    }
+
     @Override
     public int compareTo(Coordinate o) {
         if (this.y < o.y) {

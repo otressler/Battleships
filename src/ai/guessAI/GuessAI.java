@@ -1,5 +1,6 @@
 package ai.guessAI;
 
+import ai.PlacementAI;
 import ai.PlacementAnalysis;
 import com.ships.*;
 
@@ -28,13 +29,9 @@ public class GuessAI {
     private PlacementAnalysis opponentStrategyAnalyzer;
 
 
-    public PlacementAnalysis getOpponentStrategyAnalyzer() {
-        return opponentStrategyAnalyzer;
-    }
-
     public GuessAI(ArrayList<Module> modules, long decisionDelay, String name) {
         destroyedEnemyShips = new ArrayList<>();
-        opponentStrategyAnalyzer = new PlacementAnalysis(10);
+        opponentStrategyAnalyzer = new PlacementAnalysis(20);
         this.decisionDelay = decisionDelay;
         this.aiMap = new Battleground();
         this.modules = modules;
@@ -42,6 +39,10 @@ public class GuessAI {
         initGuessStack();
 
         enemyShips = Util.convertShipList(Util.getDefaultShipTypes());
+    }
+
+    public PlacementAnalysis getOpponentStrategyAnalyzer() {
+        return opponentStrategyAnalyzer;
     }
 
     private void initGuessStack() {
@@ -64,8 +65,8 @@ public class GuessAI {
         }*/
     }
 
-    public void updateOpponentStrategy(){
-        if(modules.contains(Module.MEMORY))
+    public void updateOpponentStrategy() {
+        if (modules.contains(Module.MEMORY))
             opponentStrategyAnalyzer.calculateDenseValue(destroyedEnemyShips);
     }
 
@@ -152,8 +153,8 @@ public class GuessAI {
                 hitDuringAttack(x, y);
             }
 
-            hits++;
         }
+        hits++;
         // Push coordinates next to hit on stack
         // Enter AttackMode
         // After hitting ship for the second time and !sunk
@@ -186,7 +187,13 @@ public class GuessAI {
 
         updateMinEnemyShipLength();
         updateMaxEnemyShipLength();
-
+        if (destroyedEnemyShips.size() == 1) {
+            if (modules.contains(Module.MEMORY) && opponentStrategyAnalyzer.validSuggestion() && opponentStrategyAnalyzer.guessPlacementStrategy().equals(PlacementAI.PositionStrategy.DENSE)) {
+                nextGuesses.sort(Comparator.comparingDouble(value -> value.euclideanDistance(initialHit)));
+            } else if (modules.contains(Module.MEMORY) && opponentStrategyAnalyzer.validSuggestion() && opponentStrategyAnalyzer.guessPlacementStrategy().equals(PlacementAI.PositionStrategy.SPARSE)) {
+                nextGuesses.sort(Comparator.comparingDouble(value -> value.euclideanDistance(initialHit) * -1));
+            }
+        }
         System.out.println("AI has been noticed that the ship has been sunk at " + s.getCoordinates().toString());
         currentDirection = Direction.UNKNOWN;
         stateChange(AIMode.SCOUT);
@@ -251,9 +258,7 @@ public class GuessAI {
      */
     private void hitDuringAttackAdjacent(int x, int y) {
         // Remove adjacentFieldsFromStack
-        System.out.println("adjacentMisses = " + adjacentMisses);
         for (int i = 0; i < 2 - adjacentMisses; i++) {
-            System.out.println(name + "Popping due to irrelevant adjacentField " + nextGuesses.peek().toString());
             nextGuesses.pop();
         }
 
