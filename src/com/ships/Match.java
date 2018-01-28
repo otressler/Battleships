@@ -10,7 +10,7 @@ import java.util.EmptyStackException;
 
 public class Match {
 
-    public Match(int numberOfGames, AI ai1, AI ai2) {
+    public Match(int numberOfGames, AI ai1, AI ai2, boolean verbose) {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         Metrics ai1Metrics = new Metrics(numberOfGames);
         Metrics ai2Metrics = new Metrics(numberOfGames);
@@ -21,7 +21,7 @@ public class Match {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            Game g = new Game(ai1, ai2);
+            Game g = new Game(ai1, ai2, verbose);
             try {
                 g.init();
             } catch (EmptyStackException e) {
