@@ -30,19 +30,16 @@ public class Match {
                 i--;
                 e.printStackTrace();
                 abortedGames++;
-                try {
-                    br.readLine();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
                 continue;
             }
             if (g.winner == 0) {
                 ai1Metrics.increaseGamesWon();
                 ai2Metrics.increaseGamesLost();
+                ai1.guessAI.updateOpponentStrategy();
             } else {
                 ai2Metrics.increaseGamesWon();
                 ai1Metrics.increaseGamesLost();
+                ai2.guessAI.updateOpponentStrategy();
             }
 
             ai1Metrics.updateAverageRoundsPlayed(g.getRounds());
@@ -53,6 +50,9 @@ public class Match {
 
             ai1.nextMatch();
             ai2.nextMatch();
+
+            System.out.println(ai1.guessAI.getOpponentStrategyAnalyzer().guessPlacementStrategy());
+            System.out.println(ai2.guessAI.getOpponentStrategyAnalyzer().guessPlacementStrategy());
 
             System.out.println("abortedGames = " + abortedGames);
         }

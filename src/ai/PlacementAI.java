@@ -52,9 +52,6 @@ public class PlacementAI {
 
         for (int i = 1; i < shipList.length; i++) {
             bg.placeShip(suggestDensePlacement(distanceMatrix, shipList[i], tries));
-
-            // TODO : Have a look at mergeMatrices for refreshDistanceMatrix. Currently this does not come up with good results for dense placement
-            //distanceMatrix = refreshDistanceMatrix(bg.ships.get(i), distanceMatrix);
         }
 
         return bg;

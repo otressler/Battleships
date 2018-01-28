@@ -6,16 +6,15 @@ import com.ships.Game;
 import java.util.ArrayList;
 
 public class AI {
-    private String name;
     public PlacementAI placementAI;
     public GuessAI guessAI;
-
+    private String name;
     private Game game;
 
     public AI(PlacementAI.PositionStrategy placementStrategy, ArrayList<GuessAI.Module> guessModules, int decisionDelay, String name) {
         this.name = name;
         this.placementAI = new PlacementAI(placementStrategy, 10);
-        this.guessAI = new GuessAI(guessModules, decisionDelay,name);
+        this.guessAI = new GuessAI(guessModules, decisionDelay, name);
     }
 
     //default AI

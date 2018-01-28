@@ -52,7 +52,6 @@ public class Game {
     }
 
 
-
     public void init() throws EmptyStackException {
         placementPhase(0);
         placementPhase(1);
@@ -194,7 +193,7 @@ public class Game {
     }
 
     private void printBattlegrounds(Battleground.BattlegroundMode mode) {
-        if(verbose) {
+        if (verbose) {
             AI activeAI;
             if (humanEnemy) {
                 activeAI = ai2;

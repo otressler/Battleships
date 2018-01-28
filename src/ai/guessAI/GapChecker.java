@@ -2,7 +2,6 @@ package ai.guessAI;
 
 import com.ships.Coordinate;
 
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -21,7 +20,7 @@ public class GapChecker {
         }
     }
 
-    public void splitGaps(Coordinate split){
+    public void splitGaps(Coordinate split) {
         splitGapsInternal(split);
     }
 
@@ -34,9 +33,9 @@ public class GapChecker {
         for (Iterator<Gap> i = horizontalGaps.iterator(); i.hasNext(); ) {
             Gap gap = i.next();
             if (gap.withinGap(split)) {
-                if(!gap.isStartpoint(split))
+                if (!gap.isStartpoint(split))
                     gapLeft = new Gap(gap.start, split.delta(-1, 0));
-                if(!gap.isEndpoint(split))
+                if (!gap.isEndpoint(split))
                     gapRight = new Gap(split.delta(1, 0), gap.end);
                 i.remove();
             }
@@ -44,9 +43,9 @@ public class GapChecker {
         for (Iterator<Gap> i = verticalGaps.iterator(); i.hasNext(); ) {
             Gap gap = i.next();
             if (gap.withinGap(split)) {
-                if(!gap.isStartpoint(split))
+                if (!gap.isStartpoint(split))
                     gapUp = new Gap(gap.start, split.delta(0, -1));
-                if(!gap.isEndpoint(split))
+                if (!gap.isEndpoint(split))
                     gapDown = new Gap(split.delta(0, 1), gap.end);
                 i.remove();
             }
@@ -57,7 +56,7 @@ public class GapChecker {
             horizontalGaps.add(sortGap(gapRight));
         horizontalGaps.sort(Comparator.reverseOrder());
         //if (horizontalGaps.get(0).length() > maxGapLength)
-            //maxGapLength = horizontalGaps.get(0).length();
+        //maxGapLength = horizontalGaps.get(0).length();
 
         if (Coordinate.validCoordinate(split.delta(0, -1)) && !(gapUp.start == null || gapUp.length() <= 0))
             verticalGaps.add(sortGap(gapUp));
@@ -65,19 +64,19 @@ public class GapChecker {
             verticalGaps.add(sortGap(gapDown));
         verticalGaps.sort(Comparator.reverseOrder());
         //if (verticalGaps.get(0).length() > maxGapLength)
-            //maxGapLength = verticalGaps.get(0).length();
+        //maxGapLength = verticalGaps.get(0).length();
     }
 
-    private void updateExistingGaps(){
-        for(Coordinate c : getAllOverlappingCoordinates()){
+    private void updateExistingGaps() {
+        for (Coordinate c : getAllOverlappingCoordinates()) {
             splitGaps(c);
         }
     }
 
-    private Coordinate getOverlap(Gap g1, Gap g2){
-        for(Coordinate c1 : g1.getCoordinates()){
-            for(Coordinate c2 : g2.getCoordinates()){
-                if(c1.equals(c2)){
+    private Coordinate getOverlap(Gap g1, Gap g2) {
+        for (Coordinate c1 : g1.getCoordinates()) {
+            for (Coordinate c2 : g2.getCoordinates()) {
+                if (c1.equals(c2)) {
                     return c1;
                 }
             }
@@ -85,14 +84,14 @@ public class GapChecker {
         return null;
     }
 
-    public ArrayList<Coordinate> getAllOverlappingCoordinates(){
+    public ArrayList<Coordinate> getAllOverlappingCoordinates() {
         ArrayList<Coordinate> overlappingCoordinates = new ArrayList<>();
         List<Gap> horizontal = horizontalGaps.stream().filter(gap -> gap.length() < 10).collect(Collectors.toList());
         List<Gap> vertical = verticalGaps.stream().filter(gap -> gap.length() < 10).collect(Collectors.toList());
-        for(Gap hG : horizontal){
-            for(Gap vG : vertical){
+        for (Gap hG : horizontal) {
+            for (Gap vG : vertical) {
                 Coordinate overlap = getOverlap(hG, vG);
-                if(overlap != null){
+                if (overlap != null) {
                     overlappingCoordinates.add(overlap);
                 }
             }
@@ -127,9 +126,9 @@ public class GapChecker {
         gapCoordinatesV.sort(Comparator.naturalOrder());
 
         ArrayList<Coordinate> duplicates = new ArrayList<>();
-        for(Coordinate cH : gapCoordinatesH){
-            for(Coordinate cV : gapCoordinatesV){
-                if(cH.equals(cV)){
+        for (Coordinate cH : gapCoordinatesH) {
+            for (Coordinate cV : gapCoordinatesV) {
+                if (cH.equals(cV)) {
                     duplicates.add(cH);
                 }
             }
@@ -142,29 +141,29 @@ public class GapChecker {
     public String toString() {
         List<Gap> horizontal = horizontalGaps.stream().filter(gap -> gap.length() < 10).collect(Collectors.toList());
         List<Gap> vertical = verticalGaps.stream().filter(gap -> gap.length() < 10).collect(Collectors.toList());
-        String [][] output = new String[10][10];
-        for(int y = 0; y < 10; y++){
-            for(int x = 0; x < 10; x++){
-                output[y][x]="[ ]";
+        String[][] output = new String[10][10];
+        for (int y = 0; y < 10; y++) {
+            for (int x = 0; x < 10; x++) {
+                output[y][x] = "[ ]";
             }
         }
-        for(Gap hG : horizontal){
-            for(Coordinate hC : hG.getCoordinates()){
+        for (Gap hG : horizontal) {
+            for (Coordinate hC : hG.getCoordinates()) {
                 output[hC.getY()][hC.getX()] = "[-]";
             }
         }
-        for(Gap vG : vertical){
-            for(Coordinate vC : vG.getCoordinates()){
+        for (Gap vG : vertical) {
+            for (Coordinate vC : vG.getCoordinates()) {
                 output[vC.getY()][vC.getX()] = "[I]";
             }
         }
 
         String out = "H: " + horizontal + System.lineSeparator() + "V: " + vertical + " maxLength = " + maxGapLength + System.lineSeparator();
-        for(int y = 0; y < 10; y++){
-            for(int x = 0; x < 10; x++){
-                out+=output[y][x];
+        for (int y = 0; y < 10; y++) {
+            for (int x = 0; x < 10; x++) {
+                out += output[y][x];
             }
-            out+=System.lineSeparator();
+            out += System.lineSeparator();
         }
         return out;
     }

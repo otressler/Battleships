@@ -100,14 +100,14 @@ public class Battleground {
         if (ship.verticalRotation) {
             for (int i = 0; i < ship.length; i++) {
                 if (battleground[ship.yPos + i][ship.xPos].equals(FieldState.BLOCKED) || battleground[ship.yPos + i][ship.xPos].equals(FieldState.SHIP)) {
-                    System.out.println(ship.xPos + " " + (ship.yPos + i) + " blocked");
+                    //System.out.println(ship.xPos + " " + (ship.yPos + i) + " blocked");
                     return true;
                 }
             }
         } else {
             for (int i = 0; i < ship.length; i++) {
                 if (battleground[ship.yPos][ship.xPos + i].equals(FieldState.BLOCKED) || battleground[ship.yPos][ship.xPos + i].equals(FieldState.SHIP)) {
-                    System.out.println(ship.xPos + " " + (ship.yPos + i) + " blocked");
+                    //System.out.println(ship.xPos + " " + (ship.yPos + i) + " blocked");
                     return true;
                 }
             }

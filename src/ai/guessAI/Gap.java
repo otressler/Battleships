@@ -16,11 +16,11 @@ public class Gap implements Comparable<Gap> {
 
     }
 
-    public boolean isEndpoint(Coordinate c){
+    public boolean isEndpoint(Coordinate c) {
         return this.end.equals(c);
     }
 
-    public boolean isStartpoint(Coordinate c){
+    public boolean isStartpoint(Coordinate c) {
         return this.start.equals(c);
     }
 
@@ -73,7 +73,7 @@ public class Gap implements Comparable<Gap> {
         return coordinates;
     }
 
-    public boolean isNullGap(){
+    public boolean isNullGap() {
         return start == null || end == null;
     }
 }

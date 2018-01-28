@@ -56,7 +56,7 @@ public class Coordinate implements Comparable<Coordinate> {
         }
     }
 
-    public int hashCode(){
-        return x + 10*y;
+    public int hashCode() {
+        return x + 10 * y;
     }
 }
