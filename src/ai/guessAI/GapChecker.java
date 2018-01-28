@@ -56,16 +56,16 @@ public class GapChecker {
         if (Coordinate.validCoordinate(split.delta(1, 0)) && !(gapRight.start == null || gapRight.length() <= 0))
             horizontalGaps.add(sortGap(gapRight));
         horizontalGaps.sort(Comparator.reverseOrder());
-        if (horizontalGaps.get(0).length() > maxGapLength)
-            maxGapLength = horizontalGaps.get(0).length();
+        //if (horizontalGaps.get(0).length() > maxGapLength)
+            //maxGapLength = horizontalGaps.get(0).length();
 
         if (Coordinate.validCoordinate(split.delta(0, -1)) && !(gapUp.start == null || gapUp.length() <= 0))
             verticalGaps.add(sortGap(gapUp));
         if (Coordinate.validCoordinate(split.delta(0, 1)) && !(gapDown.start == null || gapDown.length() <= 0))
             verticalGaps.add(sortGap(gapDown));
         verticalGaps.sort(Comparator.reverseOrder());
-        if (verticalGaps.get(0).length() > maxGapLength)
-            maxGapLength = verticalGaps.get(0).length();
+        //if (verticalGaps.get(0).length() > maxGapLength)
+            //maxGapLength = verticalGaps.get(0).length();
     }
 
     private void updateExistingGaps(){
@@ -134,6 +134,8 @@ public class GapChecker {
                 }
             }
         }
+
+        duplicates.forEach(coordinate -> splitGaps(coordinate));
         return duplicates;
     }
 

@@ -59,6 +59,7 @@ public class GuessAI {
         this.aiMap = new Battleground();
         this.nextGuesses = new Stack<>();
         this.state = AIMode.SCOUT;
+        this.enemyShips = Util.convertShipList(Util.getDefaultShipTypes());
         adjacentMisses = 0;
         hits = 0;
         maxEnemyShipLength = 5;
@@ -475,6 +476,8 @@ public class GuessAI {
         }
         if (tempMin > minEnemyShipLength)
             minEnemyShipLength = tempMin;
+        if(minEnemyShipLength>2)
+            ignoreTooShortGaps();
     }
 
     private void setIgnore(Coordinate c) {

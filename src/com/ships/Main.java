@@ -12,12 +12,12 @@ import java.util.ArrayList;
 public class Main {
 
     public static void main(String[] args) {
-        int numberOfGames = 1000;//Integer.parseInt(br.readLine());
+        int numberOfGames = 10;//Integer.parseInt(br.readLine());
         ArrayList<GuessAI.Module> modules1 = new ArrayList<>();
         modules1.add(GuessAI.Module.CHECKERBOARD);
         modules1.add(GuessAI.Module.HIT_REACTION);
         modules1.add(GuessAI.Module.IGNORE_BLOCKED);
-        //modules1.add(GuessAI.Module.SPACE_ANALYSIS);
+        modules1.add(GuessAI.Module.SPACE_ANALYSIS);
 
 
         ArrayList<GuessAI.Module> modules2 = new ArrayList<>();
