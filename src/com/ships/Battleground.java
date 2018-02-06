@@ -2,6 +2,9 @@ package com.ships;
 
 import java.util.ArrayList;
 
+/**
+ * Used for storing information about ships and the enemies guesses
+ */
 public class Battleground {
     //      y x
     public FieldState[][] battleground;
@@ -23,6 +26,9 @@ public class Battleground {
 
     }
 
+    /**
+     * @param game that this battleground is created for
+     */
     public Battleground(Game game) {
         this.battleground = new FieldState[10][10];
         this.game = game;
@@ -34,6 +40,11 @@ public class Battleground {
         ships = new ArrayList<>(5);
     }
 
+    /**
+     * Place a ship on the field
+     * @param ship Ship to be placed
+     * @return Placement valid?
+     */
     public boolean placeShip(Ship ship) {
         if (ship.verticalRotation) {
             if (ship.xPos >= 0 && ship.xPos < 10 && ship.yPos >= 0 && ship.yPos + ship.length - 1 < 10 && !checkForBlockedFields(ship)) {
@@ -57,6 +68,11 @@ public class Battleground {
         return false;
     }
 
+    /**
+     * Finds the ship at the given coordinate
+     * @param coordinate Coordinate
+     * @return Ship at this coordinate. Null if there is none.
+     */
     public Ship findShipByCoordinate(Coordinate coordinate) {
         for (Ship s : ships) {
             for (Coordinate c : s.getCoordinates()) {
@@ -68,6 +84,11 @@ public class Battleground {
         return null;
     }
 
+    /**
+     * Checks if a shot at Coordinate c was a hit.
+     * @param c Guess coordinate
+     * @return true if hit, false if miss
+     */
     public boolean hitEvaluation(Coordinate c) {
         for (Ship s : ships) {
             if (s.hitScan(c.x, c.y)) {
@@ -115,6 +136,10 @@ public class Battleground {
         return false;
     }
 
+    /**
+     * Blocks field around a ship for further placement.
+     * @param ship Ship to be placed.
+     */
     private void blockFieldsForPlacement(Ship ship) {
         if (ship.verticalRotation) {
             // Block field over the ship
@@ -169,10 +194,17 @@ public class Battleground {
         }
     }
 
+    /**
+     * All states that the battleground can have. Placement for Placement phase, enemy for enemy phase. Mostly used for
+     * printing.
+     */
     enum BattlegroundMode {
-        ENEMY, PLACEMENT, FRIENDLY
+        ENEMY, PLACEMENT;
     }
 
+    /**
+     * All states a field can have. Ignore and Potential are only used by AI, Ignore blocked after placement phase.
+     */
     public enum FieldState {
         IGNORE("I"),
         POTENTIAL(" "),

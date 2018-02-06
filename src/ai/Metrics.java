@@ -1,5 +1,8 @@
 package ai;
 
+/**
+ * Used for tracking performance. Variables speak for themselves
+ */
 public class Metrics {
     private int gamesPlayed, overallHits, overallMisses, overallGamesWon, overallGamesLost, minRoundsPlayed, maxRoundsPlayed, totalRoundsPlayed;
 

@@ -6,7 +6,9 @@ import com.ships.*;
 
 import java.util.*;
 
-
+/**
+ * Used for retrieving optimal guess coordinates
+ */
 public class GuessAI {
     String name;
     private int[][] placementMemory = new int[10][10]; // remember shots of enemy
@@ -28,7 +30,12 @@ public class GuessAI {
     private int adjacentMisses = 0;
     private PlacementAnalysis opponentStrategyAnalyzer;
 
-
+    /**
+     * Constructor
+     * @param modules List of Modules (See enum MODULE)
+     * @param decisionDelay Sets a timedelay before a guess for visibility purposes
+     * @param name Used to detect AI in console output
+     */
     public GuessAI(ArrayList<Module> modules, long decisionDelay, String name) {
         destroyedEnemyShips = new ArrayList<>();
         opponentStrategyAnalyzer = new PlacementAnalysis(20);
@@ -41,10 +48,17 @@ public class GuessAI {
         enemyShips = Util.convertShipList(Util.getDefaultShipTypes());
     }
 
+    /**
+     * Returns the analyzer
+     * @return PlacementAnalysis object
+     */
     public PlacementAnalysis getOpponentStrategyAnalyzer() {
         return opponentStrategyAnalyzer;
     }
 
+    /**
+     * Initializes the stack of guess coordinates
+     */
     private void initGuessStack() {
         nextGuesses = new Stack<>();
         if (modules.contains(Module.CHECKERBOARD)) {
@@ -65,11 +79,17 @@ public class GuessAI {
         }*/
     }
 
+    /**
+     * Can update the opponents strategy (Recommended: Use after win)
+     */
     public void updateOpponentStrategy() {
         if (modules.contains(Module.MEMORY))
             opponentStrategyAnalyzer.calculateDenseValue(destroyedEnemyShips);
     }
 
+    /**
+     * Call after every game. Resets variables that should only exist for the duration of one game
+     */
     public void resetState() {
         destroyedEnemyShips = new ArrayList<>();
         this.aiMap = new Battleground();
@@ -88,6 +108,10 @@ public class GuessAI {
         initGuessStack();
     }
 
+    /**
+     * Returns the next coordinate that should be shot at. Result depending on module list.
+     * @return Coordinate
+     */
     public Coordinate getNextGuess() {
         // Delay next guess for better visibility
         try {
@@ -114,6 +138,9 @@ public class GuessAI {
         return nextGuesses.pop();
     }
 
+    /**
+     * Pushes all fields on the guess stack
+     */
     private void initAllFields() {
         for (int y = 0; y < 10; y++) {
             for (int x = 0; x < 10; x++) {
@@ -124,6 +151,9 @@ public class GuessAI {
         Collections.shuffle(nextGuesses);
     }
 
+    /**
+     * Pushes every second field on the guess stack. WARNING: ONLY USE WITH HITREACT, or the ai will run out of fields
+     */
     private void initCheckerboard() {
         for (int y = 0; y < 10; y++) {
             for (int x = (y) % 2; x < 10; x += 2) {
@@ -134,6 +164,10 @@ public class GuessAI {
         Collections.shuffle(nextGuesses);
     }
 
+    /**
+     * Keeps track of enemy ships
+     * @param ship destroyed ship
+     */
     private void updateActiveShips(Ship ship) {
         for (Iterator<ShipType> i = enemyShips.iterator(); i.hasNext(); ) {
             if (i.next().getLength() == ship.length) {
@@ -143,6 +177,11 @@ public class GuessAI {
         }
     }
 
+    /**
+     * Defines behaviour after hit
+     * @param x x-Coordinate
+     * @param y y-Coordinate
+     */
     public void onHit(int x, int y) {
         if (modules.contains(Module.HIT_REACTION)) {
             if (state.equals(AIMode.SCOUT)) {
@@ -167,6 +206,11 @@ public class GuessAI {
         // Remove ignored fields from checkerboard stack
     }
 
+    /**
+     * Defines behaviour after miss
+     * @param x x-Coordinate
+     * @param y y-Coordinate
+     */
     public void onMiss(int x, int y) {
         setIgnore(new Coordinate(x, y));
         System.out.println(name + "Setting " + new Coordinate(x, y) + "to ignore in onMiss");
@@ -180,6 +224,10 @@ public class GuessAI {
         misses++;
     }
 
+    /**
+     * Defines behaviour after destroying an enemy ship
+     * @param s Destroyed ship
+     */
     public void onSunk(Ship s) {
         updateActiveShips(s);
         destroyedEnemyShips.add(s);
@@ -199,6 +247,11 @@ public class GuessAI {
         stateChange(AIMode.SCOUT);
     }
 
+    /**
+     * Defines behaviour after hit in scout mode. Actions depend on installed modules.
+     * @param x x-Coordinate
+     * @param y y-Coordinate
+     */
     private void hitDuringScout(int x, int y) {
         Coordinate hit = new Coordinate(x, y);
         stateChange(AIMode.ATTACK_ADJACENT);
@@ -241,7 +294,11 @@ public class GuessAI {
             }
         }
     }
-
+    /**
+     * Defines behaviour after miss in scout mode.
+     * @param x x-Coordinate
+     * @param y y-Coordinate
+     */
     private void missDuringScout(int x, int y) {
 
     }
@@ -311,6 +368,11 @@ public class GuessAI {
         stateChange(AIMode.ATTACK);
     }
 
+    /**
+     * Defines behaviour after miss in scout mode.
+     * @param x x-Coordinate
+     * @param y y-Coordinate
+     */
     private void missDuringAttackAdjacent(int x, int y) {
         adjacentMisses++;
     }
@@ -352,10 +414,18 @@ public class GuessAI {
         }
     }
 
+    /**
+     * Defines behaviour after hit in attack mode. Switches attack vector.
+     * @param x x-Coordinate
+     * @param y y-Coordinate
+     */
     private void missDuringAttack(int x, int y) {
         directionSwitch();
     }
 
+    /**
+     * Switches attack vector, and pushes coordinate of opposite direction on stack
+     */
     private void directionSwitch() {
         System.out.println("Switching direction");
         switch (currentDirection) {
@@ -380,6 +450,10 @@ public class GuessAI {
         }
     }
 
+    /**
+     * Changes state to one of the AIModes
+     * @param destinationState AIMode
+     */
     private void stateChange(AIMode destinationState) {
         System.out.print("AI Mode set to " + destinationState.name());
         if (destinationState.equals(AIMode.ATTACK))
@@ -387,6 +461,10 @@ public class GuessAI {
         state = destinationState;
     }
 
+    /**
+     * Used if PLACEMENT AWARENESS is activated. Ignores fields around sunk ships.
+     * @param ship
+     */
     private void ignoreAdjacentBlockedFields(Ship ship) {
         if (modules.contains(Module.IGNORE_BLOCKED)) {
 
@@ -472,6 +550,9 @@ public class GuessAI {
         }
     }
 
+    /**
+     * Keeps track of the length of enemies remaining ships
+     */
     private void updateMaxEnemyShipLength() {
         int tempMax = 0;
         for (ShipType type : enemyShips) {
@@ -482,7 +563,9 @@ public class GuessAI {
         if (tempMax < maxEnemyShipLength)
             maxEnemyShipLength = tempMax;
     }
-
+    /**
+     * Keeps track of the length of enemies remaining ships
+     */
     private void updateMinEnemyShipLength() {
         int tempMin = 5;
         for (ShipType type : enemyShips) {
@@ -496,6 +579,10 @@ public class GuessAI {
             ignoreTooShortGaps();
     }
 
+    /**
+     * Ignores a coordinate
+     * @param c Coordinate
+     */
     private void setIgnore(Coordinate c) {
         aiMap.battleground[c.getY()][c.getX()] = Battleground.FieldState.IGNORE;
         if (modules.contains(Module.SPACE_ANALYSIS)) {
@@ -505,23 +592,41 @@ public class GuessAI {
         }
     }
 
+    /**
+     * See GapChecker
+     */
     private void ignoreTooShortGaps() {
         List<Coordinate> gaps = gapChecker.ignoreTooShortGaps(minEnemyShipLength);
         gaps.forEach(coordinate -> aiMap.battleground[coordinate.getY()][coordinate.getX()] = Battleground.FieldState.IGNORE);
     }
 
+    /**
+     * Returns field state of the ai map
+     * @param c Coordinate of the desired field
+     * @return FieldState
+     */
     private Battleground.FieldState getFieldState(Coordinate c) {
         return aiMap.battleground[c.getY()][c.getX()];
     }
 
+    /**
+     * @return Total hits
+     */
     public int getHits() {
         return hits;
     }
 
+    /**
+     * @return Total misses
+     */
     public int getMisses() {
         return misses;
     }
 
+    /**
+     * Stringifier for debug and output purposes.
+     * @return String of the aimap
+     */
     public String toString() {
         String output = "AI MAP";
         output += System.lineSeparator();
@@ -537,18 +642,31 @@ public class GuessAI {
         return output;
     }
 
+    /**
+     * @return FieldState matrix representing the aimap
+     */
     public Battleground getAiMap() {
         return aiMap;
     }
 
+    /**
+     * Updates the memory of the enemies placement if the ai hits
+     * @param coordinate
+     */
     public void updatePlacementMemory(Coordinate coordinate) {
         placementMemory[coordinate.getY()][coordinate.getX()] += 1;
     }
 
+    /**
+     * @return Returns all of the destroyed enemy ships
+     */
     public ArrayList<Ship> getDestroyedEnemyShips() {
         return destroyedEnemyShips;
     }
 
+    /**
+     * AIModules
+     */
     public enum Module {
         CHECKERBOARD,
         HIT_REACTION,
@@ -557,10 +675,16 @@ public class GuessAI {
         MEMORY
     }
 
+    /**
+     * Directions UP, DOWN, ...
+     */
     public enum Direction {
         LEFT, RIGHT, UP, DOWN, UNKNOWN
     }
 
+    /**
+     * Different AIStates
+     */
     public enum AIMode {
         SCOUT, ATTACK, ATTACK_ADJACENT
 

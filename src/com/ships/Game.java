@@ -8,6 +8,9 @@ import java.io.InputStreamReader;
 import java.util.EmptyStackException;
 
 public class Game {
+    /**
+     * Ships that the game will be played with. DO NOT CHANGE!
+     */
     private final ShipType[] shipList = {ShipType.BATTLESHIP, ShipType.CRUISER, ShipType.FRIGATE, ShipType.FRIGATE, ShipType.MINESWEEPER};
     int winner;
     private BufferedReader br;
@@ -19,6 +22,10 @@ public class Game {
     private AI ai2;
     private boolean verbose;
 
+    /**
+     * Human against AI
+     * @param ai AI enemy
+     */
     public Game(AI ai) {
         humanEnemy = true;
         player = 0;
@@ -29,6 +36,11 @@ public class Game {
         verbose = true;
     }
 
+    /**
+     * AI vs AI
+     * @param ai1
+     * @param ai2
+     */
     public Game(AI ai1, AI ai2) {
         player = 0;
         battlegrounds = new Battleground[2];
@@ -39,6 +51,12 @@ public class Game {
         verbose = true;
     }
 
+    /**
+     * AI vs AI
+     * @param ai1
+     * @param ai2
+     * @param verbose set to false to not display fields. Significant speed up.
+     */
     public Game(AI ai1, AI ai2, boolean verbose) {
         player = 0;
         battlegrounds = new Battleground[2];
@@ -49,7 +67,11 @@ public class Game {
         this.verbose = verbose;
     }
 
-
+    /**
+     * start game
+     * @throws EmptyStackException If one AI runs out of guesses the game will not be used for metric evaluation. Should
+     * not happen anymore.
+     */
     public void init() throws EmptyStackException {
         placementPhase(0);
         placementPhase(1);
@@ -60,6 +82,11 @@ public class Game {
         }
     }
 
+    /**
+     * Checks if player has won
+     * @param player current player
+     * @return true if won, false if not
+     */
     private boolean winCondition(int player) {
         if (player == 1) {
             for (Ship s : battlegrounds[0].ships) {
@@ -77,7 +104,9 @@ public class Game {
         return true;
     }
 
-
+    /**
+     * Lets the ai make a guess
+     */
     private void aiGuess() {
         AI activeAI;
         AI passiveAI;
@@ -111,6 +140,9 @@ public class Game {
         }
     }
 
+    /**
+     * Asks the human to make a guess
+     */
     private void humanGuess() {
         System.out.println("#############################  Turn player " + player + "  ###########################");
         printBattlegrounds(Battleground.BattlegroundMode.ENEMY);
@@ -144,6 +176,10 @@ public class Game {
         }
     }
 
+    /**
+     * Retrieve guess by current player
+     * @param player current player
+     */
     private void guess(int player) {
         if (!winCondition(player)) {
             if (player == 0 && !humanEnemy) {
@@ -156,6 +192,9 @@ public class Game {
         }
     }
 
+    /**
+     * Init a game round.
+     */
     private void round() {
         guess(0);
         if (winCondition(0))
@@ -168,6 +207,10 @@ public class Game {
         counter++;
     }
 
+    /**
+     * Start placement phase for player
+     * @param player
+     */
     public void placementPhase(int player) {
         if (player == 0 && !humanEnemy) {
             battlegrounds[player] = ai1.placementAI.placeShips(shipList);
@@ -179,6 +222,10 @@ public class Game {
         }
     }
 
+    /**
+     * Asks the human for a placement suggestion
+     * @param type
+     */
     private void requestHumanPlacement(ShipType type) {
         System.out.println("@Player " + player + ": You may now place your " + type.getClassName() + ". Please enter the coordinates:");
         br = new BufferedReader(new InputStreamReader(System.in));
@@ -203,6 +250,10 @@ public class Game {
         printBattlegrounds(Battleground.BattlegroundMode.PLACEMENT);
     }
 
+    /**
+     * Prints the battleground depending on the current gamephase
+     * @param mode gamephase
+     */
     private void printBattlegrounds(Battleground.BattlegroundMode mode) {
         if (verbose) {
             AI activeAI;
@@ -275,6 +326,9 @@ public class Game {
         return player;
     }
 
+    /**
+     * @return Rounds played
+     */
     public int getRounds() {
         return counter;
     }

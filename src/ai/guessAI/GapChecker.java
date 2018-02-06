@@ -5,11 +5,17 @@ import com.ships.Coordinate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Used to determine gaps that are too short for enemy ships to fit in
+ */
 public class GapChecker {
     private ArrayList<Gap> horizontalGaps, verticalGaps;
     private int maxGapLength;
     private ArrayList<Coordinate> splits;
 
+    /**
+     * Default constructor
+     */
     public GapChecker() {
         horizontalGaps = new ArrayList<>();
         verticalGaps = new ArrayList<>();
@@ -20,11 +26,15 @@ public class GapChecker {
         }
     }
 
+    /**
+     * Splits two gaps. Relevant gaps are detected automatically
+     * @param split Coordinate at which gaps should be split
+     */
     public void splitGaps(Coordinate split) {
         splitGapsInternal(split);
     }
 
-    public void splitGapsInternal(Coordinate split) {
+    private void splitGapsInternal(Coordinate split) {
         splits.add(split);
         Gap gapUp = new Gap();
         Gap gapDown = new Gap();
@@ -67,12 +77,21 @@ public class GapChecker {
         //maxGapLength = verticalGaps.get(0).length();
     }
 
+    /**
+     * Do not use.
+     */
     private void updateExistingGaps() {
         for (Coordinate c : getAllOverlappingCoordinates()) {
             splitGaps(c);
         }
     }
 
+    /**
+     * Checks whether two gaps have overlapping coordinates. (Use horizontal and vertical gap)
+     * @param g1 first gap
+     * @param g2 second gap
+     * @return Coordinate at which the two gaps overlap.
+     */
     private Coordinate getOverlap(Gap g1, Gap g2) {
         for (Coordinate c1 : g1.getCoordinates()) {
             for (Coordinate c2 : g2.getCoordinates()) {
@@ -84,6 +103,10 @@ public class GapChecker {
         return null;
     }
 
+    /**
+     * Returns all coordinates at which gaps overlap
+     * @return array list of coordinates
+     */
     public ArrayList<Coordinate> getAllOverlappingCoordinates() {
         ArrayList<Coordinate> overlappingCoordinates = new ArrayList<>();
         List<Gap> horizontal = horizontalGaps.stream().filter(gap -> gap.length() < 10).collect(Collectors.toList());
@@ -99,6 +122,11 @@ public class GapChecker {
         return overlappingCoordinates;
     }
 
+    /**
+     * Suggests a gap for firing at depending on minimum ship size. Tries to shrink largest gaps first
+     * @param minShipSize Minimal enemy ship length
+     * @return Gap that should be fired at
+     */
     public Gap suggest(int minShipSize) {
         List<Gap> optionsH = horizontalGaps.stream().filter(gap -> gap.length() >= minShipSize).collect(Collectors.toList());
         List<Gap> optionsV = verticalGaps.stream().filter(gap -> gap.length() >= minShipSize).collect(Collectors.toList());
@@ -114,6 +142,11 @@ public class GapChecker {
         throw new NoSuchElementException();
     }
 
+    /**
+     * Returns a list of coordinates that can be ignored because enemy ships will not fit inside
+     * @param minShipSize
+     * @return
+     */
     public List<Coordinate> ignoreTooShortGaps(int minShipSize) {
         List<Gap> optionsH = horizontalGaps.stream().filter(gap -> gap.length() < minShipSize).collect(Collectors.toList());
         List<Gap> optionsV = verticalGaps.stream().filter(gap -> gap.length() < minShipSize).collect(Collectors.toList());
@@ -138,6 +171,10 @@ public class GapChecker {
         return duplicates;
     }
 
+    /**
+     * Stringifier for debug purposes
+     * @return Horizontal and vertical gaps sorted by their size
+     */
     public String toString() {
         List<Gap> horizontal = horizontalGaps.stream().filter(gap -> gap.length() < 10).collect(Collectors.toList());
         List<Gap> vertical = verticalGaps.stream().filter(gap -> gap.length() < 10).collect(Collectors.toList());
@@ -168,6 +205,11 @@ public class GapChecker {
         return out;
     }
 
+    /**
+     * Switches start and endpoint around ... just in case.
+     * @param gap gap to be sorted
+     * @return sorted gap
+     */
     private Gap sortGap(Gap gap) {
         if (gap.end.compareTo(gap.start) < 0) {
             return new Gap(gap.end, gap.start);

@@ -10,6 +10,9 @@ import java.util.Random;
 
 import static java.lang.Integer.min;
 
+/**
+ * Suggests placement of ships
+ */
 public class PlacementAI {
     int tries;
     private ArrayList<Ship> ships;
@@ -17,6 +20,11 @@ public class PlacementAI {
     private PositionStrategy strategy;
     private int[][] guessMemory = new int[10][10]; // remember shots of enemy
 
+    /**
+     * Constructor for defining Placement strategy
+     * @param strategy DENSE; SPARSE; RANDOM; MEMORY
+     * @param patience How many tries before choosing best strategy? Suggested value is around 100.
+     */
     public PlacementAI(PositionStrategy strategy, int patience) {
         bg = new Battleground();
         ships = new ArrayList<>();
@@ -24,11 +32,19 @@ public class PlacementAI {
         this.tries = patience;
     }
 
+    /**
+     * Resets variables that are not supposed to last for longer than the duration of a game
+     */
     public void resetState() {
         bg = new Battleground();
         ships = new ArrayList<>();
     }
 
+    /**
+     * Places ships depending on defined strategy
+     * @param shipList What ships are in play?
+     * @return Field with ships placed
+     */
     public Battleground placeShips(ShipType[] shipList) {
         switch (strategy) {
             case SPARSE: // high distance between ships
@@ -44,6 +60,11 @@ public class PlacementAI {
         }
     }
 
+    /**
+     * Suggests a dense placement
+     * @param shipList What ships are in play?
+     * @return Field with ships placed
+     */
     private Battleground placeDense(ShipType[] shipList) {
         int[][] distanceMatrix;
 
@@ -57,6 +78,13 @@ public class PlacementAI {
         return bg;
     }
 
+    /**
+     * Suggests a placement for one ship that corresponds to the dense tactic
+     * @param distanceMatrix current distanceMatrix for dense value calculations
+     * @param shipType ship to be placed
+     * @param tries patience
+     * @return Ship with x and y coordinates that can be used for placement
+     */
     private Ship suggestDensePlacement(int[][] distanceMatrix, ShipType shipType, int tries) {
         int bestScore = -1;
         Ship bestShip = new Ship(ShipType.MINESWEEPER, -1, -1, true);
@@ -85,6 +113,11 @@ public class PlacementAI {
         return bestShip;
     }
 
+    /**
+     * Suggests random placement
+     * @param shipList Ships in play
+     * @return Field with ships placed
+     */
     private Battleground placeRandomly(ShipType[] shipList) {
         Ship tempShip;
         for (ShipType type : shipList) {
@@ -99,6 +132,11 @@ public class PlacementAI {
         return bg;
     }
 
+    /**
+     * Suggests a sparse placement
+     * @param shipList Ships in play
+     * @return Field with ships placed
+     */
     private Battleground placeSparse(ShipType[] shipList) {
         int[][] distanceMatrix;
 
@@ -114,6 +152,13 @@ public class PlacementAI {
         return bg;
     }
 
+    /**
+     * Suggests a placement for one ship that corresponds to the sparse tactic
+     * @param distanceMatrix current distanceMatrix for dense value calculations
+     * @param shipType ship to be placed
+     * @param tries patience
+     * @return Ship with x and y coordinates that can be used for placement
+     */
     private Ship suggestSparsePlacement(int[][] distanceMatrix, ShipType shipType, int tries) {
         int bestScore = -1;
         Ship bestShip = new Ship(ShipType.MINESWEEPER, -1, -1, true);
@@ -142,6 +187,11 @@ public class PlacementAI {
         return bestShip;
     }
 
+    /**
+     * Suggests placement based on memory
+     * @param shipList Ships to be placed
+     * @return Field with ships placed
+     */
     private Battleground placeMemory(ShipType[] shipList) {
 
         bg.placeShip(suggestRandomPlacement(shipList[0]));
@@ -153,6 +203,12 @@ public class PlacementAI {
         return bg;
     }
 
+    /**
+     * Suggest a placement for one ship based on memory
+     * @param shipType ship to be placed
+     * @param tries patience
+     * @return Ship with x and y coordinates that can be used for placement
+     */
     private Ship suggestMemoryPlacement(ShipType shipType, int tries) {
         int bestScore = -1;
         Ship bestShip = new Ship(ShipType.MINESWEEPER, -1, -1, true);
@@ -181,14 +237,31 @@ public class PlacementAI {
         return bestShip;
     }
 
+    /**
+     * Used for calculating the complete distanceMatrix after first ship has been placed
+     * @param s
+     * @return
+     */
     private int[][] calculateDistanceMatrix(Ship s) {
         return distanceMatrixPerShip(s);
     }
 
+    /**
+     * Updates an existing distanceMatrix. Call when placing second ship and after.
+     * @param s Ship to be placed. Calculations will be done for this ship.
+     * @param distanceMatrix Existing distanceMatrix
+     * @return Updated distanceMatrix that includes ship s
+     */
     private int[][] refreshDistanceMatrix(Ship s, int[][] distanceMatrix) {
         return mergeMatrices(distanceMatrix, distanceMatrixPerShip(s));
     }
 
+    /**
+     * Util method for merging two distance matrices
+     * @param m1 Matrix 1
+     * @param m2 Matrix 2
+     * @return DistanceMatrix with min values for each field
+     */
     private int[][] mergeMatrices(int[][] m1, int[][] m2) {
         int[][] temp = new int[10][10];
         for (int y = 0; y < 10; y++) {
@@ -200,6 +273,11 @@ public class PlacementAI {
         return temp;
     }
 
+    /**
+     * Calculates the distance matrix for one ship
+     * @param ship Ship
+     * @return DistanceMatrix
+     */
     private int[][] distanceMatrixPerShip(Ship ship) {
         ArrayList<int[][]> distanceMatrices = new ArrayList<>();
         int[][] distanceMatrix = new int[10][10];
@@ -229,6 +307,11 @@ public class PlacementAI {
         return distanceMatrix;
     }
 
+    /**
+     * Calculates the distanceMatrix for each ship part
+     * @param shipPart Coordinate of a ship
+     * @return DistanceMatrix
+     */
     private int[][] distanceMatrixPerShipPart(Coordinate shipPart) {
         int[][] singleDistanceMatrix = new int[10][10];
 
@@ -241,6 +324,13 @@ public class PlacementAI {
         return singleDistanceMatrix;
     }
 
+    /**
+     * Util method for merging on field of multiple matrices
+     * @param x x-Coordinate
+     * @param y y-Coordinate
+     * @param matrices List of matrices
+     * @return minimum value of that field
+     */
     private int findMinimumDistanceAmongMatrices(int x, int y, ArrayList<int[][]> matrices) {
         int min = -1;
         for (int[][] matrix : matrices) {
@@ -252,10 +342,23 @@ public class PlacementAI {
         return min;
     }
 
+    /**
+     * Calculates the euclidean distance between a ship coordinate and a field coordinate
+     * @param xShip
+     * @param yShip
+     * @param xField
+     * @param yField
+     * @return distance
+     */
     private int euclideanDistance(int xShip, int yShip, int xField, int yField) {
         return (int) (Math.sqrt((xShip - xField) * (xShip - xField) + (yShip - yField) * (yShip - yField)));
     }
 
+    /**
+     * Suggests a random placement for one ship
+     * @param type Ship to be placed
+     * @return Ship with x and y coordinate ready for placement
+     */
     private Ship suggestRandomPlacement(ShipType type) {
         int newXPos, newYPos;
         boolean newVerticalRotation;
@@ -273,10 +376,17 @@ public class PlacementAI {
         return new Ship(type, newXPos, newYPos, newVerticalRotation);
     }
 
+    /**
+     * Updates on what fields the enemy shoots most.
+     * @param coordinate Field that has been targeted by the enemy
+     */
     public void updateGuessMemory(Coordinate coordinate) {
         guessMemory[coordinate.getY()][coordinate.getX()] += 1;
     }
 
+    /**
+     * Defines the possible position strategies
+     */
     public enum PositionStrategy {
         SPARSE, DENSE, RANDOM, MEMORY
     }

@@ -9,17 +9,28 @@ import java.util.stream.Collectors;
 
 import static java.lang.Integer.min;
 
+/**
+ * Mimics placement AI to calculate the dense value for predicting the opponents strategy.
+ */
 public class PlacementAnalysis {
     private int[][] distanceMatrix;
     private int denseValue, slidingWindow;
     private ArrayList<Integer> oldDenseValues;
 
+    /**
+     * Used for initializing the analysis module
+     * @param slidingWindow How many games should be considered for determining the opponents strategy?
+     */
     public PlacementAnalysis(int slidingWindow) {
         oldDenseValues = new ArrayList<>();
 
         this.slidingWindow = slidingWindow;
     }
 
+    /**
+     * Returns the enemies potential strategy
+     * @return PositionStrategy
+     */
     public PlacementAI.PositionStrategy guessPlacementStrategy() {
         int avgValue = 0;
         for (int i = oldDenseValues.size() - 1; i >= 0 & i > oldDenseValues.size() - slidingWindow; i--) {

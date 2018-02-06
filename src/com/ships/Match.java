@@ -7,8 +7,18 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.EmptyStackException;
 
+/**
+ * Plays a series of games and collects metrics
+ */
 public class Match {
 
+    /**
+     * Play a series of games with AI vs AI
+     * @param numberOfGames How many games?
+     * @param ai1
+     * @param ai2
+     * @param verbose Should fields be printed? false increases speed significantly.
+     */
     public Match(int numberOfGames, AI ai1, AI ai2, boolean verbose) {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         Metrics ai1Metrics = new Metrics(numberOfGames);
@@ -59,6 +69,11 @@ public class Match {
         System.out.println(ai2Metrics.toString());
     }
 
+    /**
+     * Play a series of games against the AI
+     * @param numberOfGames How many games?
+     * @param ai
+     */
     public Match(int numberOfGames, AI ai) {
         for (int i = 0; i < numberOfGames; i++) {
             new Game(ai).init();

@@ -2,6 +2,9 @@ package com.ships;
 
 import java.util.ArrayList;
 
+/**
+ * Used for storing information about ship positioning, ship state and type.
+ */
 public class Ship {
     public int xPos;
     public int yPos;
@@ -19,6 +22,12 @@ public class Ship {
         this.length = type.getLength();
     }
 
+    /**
+     * Checks if a ship has been hit
+     * @param x x-Coordinate
+     * @param y y-Coordinate
+     * @return true if hit, false if not
+     */
     public boolean hitScan(int x, int y) {
         if (verticalRotation) {
             if (x == xPos && y >= yPos && y <= yPos + length - 1) {
@@ -45,6 +54,10 @@ public class Ship {
         return false;
     }
 
+    /**
+     * All coordinates occupied by the ship
+     * @return List of coordinates
+     */
     public ArrayList<Coordinate> getCoordinates() {
 
         ArrayList<Coordinate> coordinates = new ArrayList<>();
